@@ -175,7 +175,7 @@ namespace SKOrderTester
 
         private void timer1_Tick(object sender, EventArgs e)
         {
-            /*
+            
             if (TimeSpan.Parse(DateTime.Now.ToString("HH:mm"))==TimeSpan.Parse("13:40"))
             {
                 timer1.Interval = 297000;//Call the last order at 13:44:47
@@ -190,13 +190,14 @@ namespace SKOrderTester
             GetCurrentOrder();
             label3.Text = DateTime.Now.AddMilliseconds(timer1.Interval).ToString("HH:mm:ss");
             
-           */ 
+           /*
            if (TimeSpan.Parse(DateTime.Now.ToString("HH:mm")) >= TimeSpan.Parse("08:45") && TimeSpan.Parse(DateTime.Now.ToString("HH:mm")) <= TimeSpan.Parse("13:45"))
            {
                RunBacktrader();
                GetCurrentOrder();
                label3.Text = DateTime.Now.AddMilliseconds(timer1.Interval).ToString("HH:mm:ss");
            }
+           */
         }
 
         private void RunBacktrader()
@@ -244,7 +245,7 @@ namespace SKOrderTester
 
                     SqlCommand sqlcmd = new SqlCommand();
                     sqlcmd.Connection = connection;
-                    sqlcmd.CommandText = "SELECT * FROM [Stock].[dbo].[Orders] WHERE SignalTime=FORMAT(DATEADD(minute,-4,GETDATE()),'yyyy-MM-dd HH:mm')+':00'";
+                    sqlcmd.CommandText = "SELECT * FROM [Stock].[dbo].[Orders] WHERE SignalTime=FORMAT(DATEADD(minute,-5,GETDATE()),'yyyy-MM-dd HH:mm')+':00'";
                     //"FORMAT(DATEADD(minute,-4,GETDATE()),'yyyy-MM-dd HH:mm')+':00'";
 
                     using (SqlDataReader reader = sqlcmd.ExecuteReader())
