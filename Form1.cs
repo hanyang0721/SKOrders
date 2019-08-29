@@ -19,7 +19,8 @@ namespace SKOrderTester
         //----------------------------------------------------------------------
         int m_nCode;
         private string connectionstr = System.Configuration.ConfigurationManager.AppSettings.Get("Connectionstring");
-
+        private string FutureAccount = System.Configuration.ConfigurationManager.AppSettings.Get("FutureAccount");
+        
         SKCenterLib m_pSKCenter;
         SKCenterLib m_pSKCenter2;
         SKOrderLib m_pSKOrder;
@@ -254,7 +255,7 @@ namespace SKOrderTester
                         {
                             RecordLog("4.0 Order is ready to be placed !");
                             FUTUREORDER pFutureOrder = new FUTUREORDER();
-                            pFutureOrder.bstrFullAccount = "F0200009834349";
+                            pFutureOrder.bstrFullAccount = FutureAccount;
                             pFutureOrder.bstrPrice = "M";
                             pFutureOrder.bstrStockNo = reader["stockNo"].ToString();
                             pFutureOrder.nQty = Convert.ToInt32(reader["Size"].ToString());
