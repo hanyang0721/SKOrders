@@ -7,6 +7,10 @@
 Windows 10 Professional
 SQL Sever 2016
 
+步驟
+設定Appconfig裡的username, password, futureaccount.
+在工作排程(Task scheduler)設定時間啟用, 
+
 
 原理
 將寫好的backtrader策略放入C#, 利用process啟起來. 寫入db紀錄後馬上將OrderLog撈出送訊號, 整個流程約1秒內可完成.
