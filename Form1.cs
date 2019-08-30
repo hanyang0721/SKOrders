@@ -20,7 +20,9 @@ namespace SKOrderTester
         int m_nCode;
         private string connectionstr = System.Configuration.ConfigurationManager.AppSettings.Get("Connectionstring");
         private string FutureAccount = System.Configuration.ConfigurationManager.AppSettings.Get("FutureAccount");
-        
+        private string stratpath = System.Configuration.ConfigurationManager.AppSettings.Get("Stratpath");
+        private string pythonpath = System.Configuration.ConfigurationManager.AppSettings.Get("Pythonpath");
+
         SKCenterLib m_pSKCenter;
         SKCenterLib m_pSKCenter2;
         SKOrderLib m_pSKOrder;
@@ -71,16 +73,20 @@ namespace SKOrderTester
             TimeSpan span = dt2 - dt1;
             //timer1.Interval = (int)span.TotalMilliseconds;
 
-            if ((int)span.TotalMilliseconds > 0)
+            if (Math.Round(span.TotalMilliseconds,0) > 0)
             {
-                timer1.Interval = (int)span.TotalMilliseconds;
+                timer1.Interval = (int)Math.Ceiling(span.TotalSeconds) * 1000;
                 timer1.Enabled = true;
+                button1.Enabled = false;
+                button2.Enabled = true;
+                label3.Text = dt1.AddMilliseconds(timer1.Interval).ToString();
                 RecordLog("1. Timer Start First time");
             }
-            RecordLog("1. Form loaded");
-
-            //Stop timer button
-            button2.Enabled = false;
+            else
+            {
+                RecordLog("1. Form loaded");
+                button2.Enabled = false;
+            }
         }
 
 
@@ -91,10 +97,11 @@ namespace SKOrderTester
 
             TimeSpan span = dt2 - dt1;
 
-            if ((int)span.TotalMilliseconds > 0)
+            if (Math.Ceiling(span.TotalSeconds) > 0)
             {
-                timer1.Interval = (int)span.TotalMilliseconds;
+                timer1.Interval = timer1.Interval = (int)Math.Ceiling(span.TotalSeconds) * 1000;
                 timer1.Enabled = true;
+                label3.Text = dt1.AddMilliseconds(timer1.Interval).ToString();
                 RecordLog("1. Timer Starts at specified time");
                 button1.Enabled = false;
                 button2.Enabled = true;
@@ -109,6 +116,8 @@ namespace SKOrderTester
         {
             button1.Enabled = true;
             button2.Enabled = false;
+            timer1.Enabled = false;//stop timer
+            label3.Text = "";//reset timer label
         }
 
         private void btnInitialize_Click(object sender, EventArgs e)
@@ -206,10 +215,10 @@ namespace SKOrderTester
             try
             {
                 RecordLog("3. Python Starts");
-                string fileName = @"C:\Users\HY\Dropbox\PythonSource\psy.py";
+                string fileName = stratpath;
 
                 Process p = new Process();
-                p.StartInfo = new ProcessStartInfo(@"C:\Python\Scripts\python.exe", fileName)
+                p.StartInfo = new ProcessStartInfo(pythonpath, fileName)
                 {
                     RedirectStandardOutput = true,
                     UseShellExecute = false,
@@ -243,11 +252,10 @@ namespace SKOrderTester
                 using (SqlConnection connection = new SqlConnection(connectionstr))
                 {
                     connection.Open();
-
+                    int intervalMins = Convert.ToInt32(textBox1.Text.ToString()) / 1000 / 60;//convert to minute
                     SqlCommand sqlcmd = new SqlCommand();
                     sqlcmd.Connection = connection;
-                    sqlcmd.CommandText = "SELECT * FROM [Stock].[dbo].[Orders] WHERE SignalTime=FORMAT(DATEADD(minute,-5,GETDATE()),'yyyy-MM-dd HH:mm')+':00'";
-                    //"FORMAT(DATEADD(minute,-4,GETDATE()),'yyyy-MM-dd HH:mm')+':00'";
+                    sqlcmd.CommandText = "SELECT * FROM [Stock].[dbo].[Orders] WHERE SignalTime=FORMAT(DATEADD(minute,-" + intervalMins + ",GETDATE()),'yyyy-MM-dd HH:mm')+':00'";
 
                     using (SqlDataReader reader = sqlcmd.ExecuteReader())
                     {
