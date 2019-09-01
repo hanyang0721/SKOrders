@@ -19,9 +19,7 @@ Windows 10 Professional
 ## 使用方式
 設定Appconfig裡的username, password, futureaccount(例F020xxxxxx), python執行檔路徑, 策略路徑.
 在工作排程(Task scheduler)設定時間啟用, 程式開啟後會帶入config內的參數做自動登入
-
-## 程式流程 
-將寫好的backtrader策略放入C#, 利用process啟起來. 寫入db紀錄後馬上將OrderLog撈出送訊號, 整個流程約1秒內可完成.
+程式從策略重新計算至寫入db紀錄後馬上將OrderLog撈出送訊號, 整個流程約1秒內可完成.
 
 ## 程式畫面
 ![image](https://github.com/hanyang0721/SKOrders/blob/master/SKOrder.PNG)
