@@ -22,6 +22,7 @@ namespace SKOrderTester
         private string FutureAccount = System.Configuration.ConfigurationManager.AppSettings.Get("FutureAccount");
         private string stratpath = System.Configuration.ConfigurationManager.AppSettings.Get("Stratpath");
         private string pythonpath = System.Configuration.ConfigurationManager.AppSettings.Get("Pythonpath");
+        private string linepushpath = System.Configuration.ConfigurationManager.AppSettings.Get("LinePushpath");
 
         SKCenterLib m_pSKCenter;
         SKCenterLib m_pSKCenter2;
@@ -185,7 +186,7 @@ namespace SKOrderTester
 
         private void timer1_Tick(object sender, EventArgs e)
         {
-            
+            //Option 1, run at special time before day close
             if (TimeSpan.Parse(DateTime.Now.ToString("HH:mm"))==TimeSpan.Parse("13:40"))
             {
                 timer1.Interval = 297000;//Call the last order at 13:44:47
@@ -200,7 +201,7 @@ namespace SKOrderTester
             GetCurrentOrder();
             label3.Text = DateTime.Now.AddMilliseconds(timer1.Interval).ToString("HH:mm:ss");
             
-           /*
+           /*//Option 2, run on a normal interval
            if (TimeSpan.Parse(DateTime.Now.ToString("HH:mm")) >= TimeSpan.Parse("08:45") && TimeSpan.Parse(DateTime.Now.ToString("HH:mm")) <= TimeSpan.Parse("13:45"))
            {
                RunBacktrader();
@@ -215,10 +216,10 @@ namespace SKOrderTester
             try
             {
                 RecordLog("3. Python Starts");
-                string fileName = stratpath;
+                string scriptName = stratpath;
 
                 Process p = new Process();
-                p.StartInfo = new ProcessStartInfo(pythonpath, fileName)
+                p.StartInfo = new ProcessStartInfo(pythonpath, scriptName)
                 {
                     RedirectStandardOutput = true,
                     UseShellExecute = false,
@@ -230,6 +231,28 @@ namespace SKOrderTester
             }
             catch
             {  }
+        }
+
+        private void OrderPushToLine()
+        {
+            try
+            {
+                RecordLog("4.2 Order Push To Line !!");
+                string scriptName = linepushpath;
+
+                Process p = new Process();
+                p.StartInfo = new ProcessStartInfo(pythonpath, scriptName)
+                {
+                    RedirectStandardOutput = true,
+                    UseShellExecute = false,
+                    CreateNoWindow = true
+                };
+                p.Start();
+                string output = p.StandardOutput.ReadToEnd();
+                p.WaitForExit();
+            }
+            catch
+            { }
         }
 
         private void RecordLog(string message)
@@ -278,21 +301,23 @@ namespace SKOrderTester
                             OnFutureOrderSignal?.Invoke("", false, pFutureOrder);
                         }
                     }
-                    RecordLog("4.2 GetCurrentOrder Done");
+                    RecordLog("4.3 GetCurrentOrder Done");
                     connection.Close();
                 }
             }
             catch 
             {}
             finally
-            {}
+            {
+            }
         }
 
         private void MyOnFutureOrderSignal(string strLogInID, bool bAsyncOrder, FUTUREORDER pStock)
         {
             string strMessage = "";
             m_nCode = m_pSKOrder.SendFutureOrder(strLogInID, bAsyncOrder, pStock, out strMessage);
-            RecordLog("4.1 Order is issued!!!!");
+            RecordLog("4.1 Order is issued !");
+            OrderPushToLine();
             WriteMessage("期貨委託：" + strMessage);
         }
 
