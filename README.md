@@ -17,7 +17,7 @@
 4. 參數檔execonfig, 提供使用者自訂username, password, 策略script路徑
 
 ### 更新
-2019-09-25
+<i>2019-09-25</i>
 1. 改用AccurateTimer(multimedia timer)降低內建timer導致的時間差.
 2. 新增skip order功能, 當訊號發出時不做下單動作, 僅發line提醒
 
