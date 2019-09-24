@@ -29,6 +29,10 @@ namespace SKOrderTester
         SKOrderLib m_pSKOrder;
         SKReplyLib m_pSKReply;
 
+        AccurateTimer mTimer1;//mTimer2
+        public int interval;
+
+
         #endregion
 
         #region Initialize
@@ -55,7 +59,6 @@ namespace SKOrderTester
         }
 
         #endregion
-
         private void Form1_Load(object sender, EventArgs e)
         {
             OnFutureOrderSignal += new Form1.OrderHandler(this.MyOnFutureOrderSignal);
@@ -63,10 +66,12 @@ namespace SKOrderTester
             Button orderbtnInitialize = skOrder1.Controls.Find("OrderInitialize", true).FirstOrDefault() as Button;
             Button getAccbtnInitialize = skOrder1.Controls.Find("btnGetAccount", true).FirstOrDefault() as Button;
             Button getCertbtnInitialize = skOrder1.Controls.Find("btnReadCert", true).FirstOrDefault() as Button;
-            //
+            
             orderbtnInitialize.PerformClick();
             getAccbtnInitialize.PerformClick();
             getCertbtnInitialize.PerformClick();
+
+            label7.Text = GetSkipOrdersCount().ToString();
 
             DateTime dt1 = DateTime.Now;
             DateTime dt2 = DateTime.Parse(DateTime.Now.ToString("yyyy/MM/dd") + " 08:50:00");
@@ -76,11 +81,13 @@ namespace SKOrderTester
 
             if (Math.Round(span.TotalMilliseconds,0) > 0)
             {
-                timer1.Interval = (int)Math.Ceiling(span.TotalSeconds) * 1000;
-                timer1.Enabled = true;
+                interval = (int)Math.Ceiling(span.TotalSeconds) * 1000;
+                //timer1.Enabled = true;
                 button1.Enabled = false;
                 button2.Enabled = true;
-                label3.Text = dt1.AddMilliseconds(timer1.Interval).ToString();
+                label3.Text = dt1.AddMilliseconds(interval).ToString();
+
+                mTimer1 = new AccurateTimer(this, new Action(TimerTick1), interval);
                 RecordLog("1. Timer Start First time");
             }
             else
@@ -100,9 +107,10 @@ namespace SKOrderTester
 
             if (Math.Ceiling(span.TotalSeconds) > 0)
             {
-                timer1.Interval = timer1.Interval = (int)Math.Ceiling(span.TotalSeconds) * 1000;
-                timer1.Enabled = true;
-                label3.Text = dt1.AddMilliseconds(timer1.Interval).ToString();
+                interval = (int)Math.Ceiling(span.TotalSeconds) * 1000;
+                mTimer1 = new AccurateTimer(this, new Action(TimerTick1), interval);
+                //timer1.Enabled = true;
+                label3.Text = dt1.AddMilliseconds(interval).ToString();
                 RecordLog("1. Timer Starts at specified time");
                 button1.Enabled = false;
                 button2.Enabled = true;
@@ -117,7 +125,8 @@ namespace SKOrderTester
         {
             button1.Enabled = true;
             button2.Enabled = false;
-            timer1.Enabled = false;//stop timer
+            mTimer1.Stop();
+            //timer1.Enabled = false;//stop timer
             label3.Text = "";//reset timer label
         }
 
@@ -184,31 +193,37 @@ namespace SKOrderTester
             MessageBox.Show(strData);
         }
 
-        private void timer1_Tick(object sender, EventArgs e)
+        private void TimerTick1()
         {
-            //Option 1, run at special time before day close
-            if (TimeSpan.Parse(DateTime.Now.ToString("HH:mm"))==TimeSpan.Parse("13:40"))
+            //Option 1, run at preset time before day close
+            if (TimeSpan.Parse(DateTime.Now.ToString("HH:mm")) == TimeSpan.Parse("13:40"))
             {
-                timer1.Interval = 297000;//Call the last order at 13:44:47
+                interval = 297000;//Call the last order at 13:44:47
                 RecordLog("2. Last Ticks");
+            }
+            else if(Convert.ToInt32(textBox1.Text.ToString())!=interval)
+            {
+                interval = Convert.ToInt32(textBox1.Text.ToString());
+                mTimer1.Stop();
+                mTimer1 = new AccurateTimer(this, new Action(TimerTick1), interval);
+                RecordLog("2. Timer Ticks, interval changed");
             }
             else
             {
-                timer1.Interval = Convert.ToInt32(textBox1.Text.ToString());
                 RecordLog("2. Timer Ticks");
             }
             RunBacktrader();
             GetCurrentOrder();
-            label3.Text = DateTime.Now.AddMilliseconds(timer1.Interval).ToString("HH:mm:ss");
-            
-           /*//Option 2, run on a normal interval
-           if (TimeSpan.Parse(DateTime.Now.ToString("HH:mm")) >= TimeSpan.Parse("08:45") && TimeSpan.Parse(DateTime.Now.ToString("HH:mm")) <= TimeSpan.Parse("13:45"))
-           {
-               RunBacktrader();
-               GetCurrentOrder();
-               label3.Text = DateTime.Now.AddMilliseconds(timer1.Interval).ToString("HH:mm:ss");
-           }
-           */
+            label3.Text = DateTime.Now.AddMilliseconds(interval).ToString("HH:mm:ss");
+            label7.Text = GetSkipOrdersCount().ToString();
+            /*//Option 2, run on a normal interval
+            if (TimeSpan.Parse(DateTime.Now.ToString("HH:mm")) >= TimeSpan.Parse("08:45") && TimeSpan.Parse(DateTime.Now.ToString("HH:mm")) <= TimeSpan.Parse("13:45"))
+            {
+                RunBacktrader();
+                GetCurrentOrder();
+                label3.Text = DateTime.Now.AddMilliseconds(timer1.Interval).ToString("HH:mm:ss");
+            }
+            */
         }
 
         private void RunBacktrader()
@@ -262,10 +277,54 @@ namespace SKOrderTester
                 SqlCommand sqlcmd = new SqlCommand();
                 connection.Open();
                 sqlcmd.Connection = connection;
-                sqlcmd.CommandText = "INSERT INTO [Stock].[dbo].[ATM_DailyLog] (ExecTime, Steps) VALUES ('" + DateTime.Now.ToString("yyyy/MM/dd HH:mm:ss") + "','" + message + "')";
+                sqlcmd.CommandText = "INSERT INTO [Stock].[dbo].[ATM_DailyLog] (ExecTime, Steps) VALUES ('" + DateTime.Now.ToString("yyyy/MM/dd HH:mm:ss:fff") + "','" + message + "')";
                 sqlcmd.ExecuteNonQuery();
                 connection.Close();
             }
+        }
+
+        public int GetSkipOrdersCount()
+        {
+            try
+            {
+                using (SqlConnection connection = new SqlConnection(connectionstr))
+                {
+                    int skipcount=0;
+                    SqlCommand sqlcmd = new SqlCommand();
+                    connection.Open();
+                    sqlcmd.Connection = connection;
+                    sqlcmd.CommandText = "SELECT [value] FROM[Stock].[dbo].[ATM_Enviroment] WHERE Parameter='SkipOrderCount'";
+                    string returnval = sqlcmd.ExecuteScalar().ToString();
+                    if (returnval != null)
+                    {
+                        skipcount = Convert.ToInt16(returnval);
+                    }
+                    connection.Close();
+                    return skipcount;
+                }
+            }
+            catch
+            {
+                return 0;
+            }
+        }
+
+        public void DecreaseSkipOrdersCount()
+        {
+            try
+            {
+                using (SqlConnection connection = new SqlConnection(connectionstr))
+                {
+                    SqlCommand sqlcmd = new SqlCommand();
+                    connection.Open();
+                    sqlcmd.Connection = connection;
+                    sqlcmd.CommandText = "UPDATE [Stock].[dbo].[ATM_Enviroment] SET[value] =[value] - 1 WHERE Parameter = 'SkipOrderCount'";
+                    sqlcmd.ExecuteNonQuery();
+                    connection.Close();
+                }
+            }
+            catch
+            { }
         }
 
         private void GetCurrentOrder()
@@ -278,8 +337,14 @@ namespace SKOrderTester
                     int intervalMins = Convert.ToInt32(textBox1.Text.ToString()) / 1000 / 60;//convert to minute
                     SqlCommand sqlcmd = new SqlCommand();
                     sqlcmd.Connection = connection;
-                    sqlcmd.CommandText = "SELECT * FROM [Stock].[dbo].[Orders] WHERE SignalTime=FORMAT(DATEADD(minute,-" + intervalMins + ",GETDATE()),'yyyy-MM-dd HH:mm')+':00'";
 
+                    RecordLog("4.2 GetCurrentOrder Start");
+
+                    sqlcmd.CommandText = "SELECT * FROM [Stock].[dbo].[Orders] WHERE SignalTime BETWEEN " +
+                                        " FORMAT(DATEADD(minute,-" + (intervalMins+1) + ",GETDATE()),'yyyy-MM-dd HH:mm')+':00' AND " +
+                                        " FORMAT(DATEADD(minute,-" + (intervalMins-1) + ",GETDATE()),'yyyy-MM-dd HH:mm')+':00'";
+                    
+                    //sqlcmd.CommandText = "SELECT TOP 2* FROM [Stock].[dbo].[Orders] ";
                     using (SqlDataReader reader = sqlcmd.ExecuteReader())
                     {
                         while (reader.Read())
@@ -298,7 +363,17 @@ namespace SKOrderTester
 
                             //0新倉 1平倉 2自動
                             pFutureOrder.sNewClose = 2;
-                            OnFutureOrderSignal?.Invoke("", false, pFutureOrder);
+
+                            if(GetSkipOrdersCount()==0)
+                            {
+                                OnFutureOrderSignal?.Invoke("", false, pFutureOrder);
+                                OrderPushToLine();
+                            }
+                            else
+                            {
+                                DecreaseSkipOrdersCount();
+                                OrderPushToLine();
+                            }
                         }
                     }
                     RecordLog("4.3 GetCurrentOrder Done");
@@ -307,9 +382,6 @@ namespace SKOrderTester
             }
             catch 
             {}
-            finally
-            {
-            }
         }
 
         private void MyOnFutureOrderSignal(string strLogInID, bool bAsyncOrder, FUTUREORDER pStock)
@@ -317,7 +389,6 @@ namespace SKOrderTester
             string strMessage = "";
             m_nCode = m_pSKOrder.SendFutureOrder(strLogInID, bAsyncOrder, pStock, out strMessage);
             RecordLog("4.1 Order is issued !");
-            OrderPushToLine();
             WriteMessage("期貨委託：" + strMessage);
         }
 

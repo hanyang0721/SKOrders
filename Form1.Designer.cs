@@ -38,7 +38,6 @@ namespace SKOrderTester
         /// </summary>
         private void InitializeComponent()
         {
-            this.components = new System.ComponentModel.Container();
             this.btnInitialize = new System.Windows.Forms.Button();
             this.lblPassword = new System.Windows.Forms.Label();
             this.txtPassWord = new System.Windows.Forms.TextBox();
@@ -53,12 +52,13 @@ namespace SKOrderTester
             this.tabPage1 = new System.Windows.Forms.TabPage();
             this.tabPage2 = new System.Windows.Forms.TabPage();
             this.tabControl1 = new System.Windows.Forms.TabControl();
-            this.timer1 = new System.Windows.Forms.Timer(this.components);
             this.label2 = new System.Windows.Forms.Label();
             this.label3 = new System.Windows.Forms.Label();
             this.label4 = new System.Windows.Forms.Label();
             this.textBox1 = new System.Windows.Forms.TextBox();
             this.label5 = new System.Windows.Forms.Label();
+            this.label6 = new System.Windows.Forms.Label();
+            this.label7 = new System.Windows.Forms.Label();
             this.skOrder1 = new SKCOMTester.SKOrder();
             this.skReply1 = new SKCOMTester.SKReply();
             this.groupBox1.SuspendLayout();
@@ -156,9 +156,9 @@ namespace SKOrderTester
             this.label1.Location = new System.Drawing.Point(11, 98);
             this.label1.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(86, 17);
+            this.label1.Size = new System.Drawing.Size(89, 17);
             this.label1.TabIndex = 25;
-            this.label1.Text = "First Runtime:";
+            this.label1.Text = "Next Runtime:";
             // 
             // button1
             // 
@@ -229,10 +229,6 @@ namespace SKOrderTester
             this.tabControl1.Size = new System.Drawing.Size(1008, 408);
             this.tabControl1.TabIndex = 23;
             // 
-            // timer1
-            // 
-            this.timer1.Tick += new System.EventHandler(this.timer1_Tick);
-            // 
             // label2
             // 
             this.label2.AutoSize = true;
@@ -265,12 +261,13 @@ namespace SKOrderTester
             // 
             // textBox1
             // 
+            this.textBox1.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.textBox1.Enabled = false;
             this.textBox1.Font = new System.Drawing.Font("Yu Gothic UI", 9F);
             this.textBox1.Location = new System.Drawing.Point(742, 157);
             this.textBox1.Multiline = true;
             this.textBox1.Name = "textBox1";
-            this.textBox1.Size = new System.Drawing.Size(89, 21);
+            this.textBox1.Size = new System.Drawing.Size(85, 17);
             this.textBox1.TabIndex = 29;
             this.textBox1.Text = "300000";
             // 
@@ -283,6 +280,27 @@ namespace SKOrderTester
             this.label5.Size = new System.Drawing.Size(25, 17);
             this.label5.TabIndex = 30;
             this.label5.Text = "ms";
+            // 
+            // label6
+            // 
+            this.label6.AutoSize = true;
+            this.label6.Font = new System.Drawing.Font("Yu Gothic UI", 9.75F);
+            this.label6.Location = new System.Drawing.Point(875, 158);
+            this.label6.Name = "label6";
+            this.label6.Size = new System.Drawing.Size(75, 17);
+            this.label6.TabIndex = 31;
+            this.label6.Text = "Skip orders";
+            // 
+            // label7
+            // 
+            this.label7.AutoSize = true;
+            this.label7.Font = new System.Drawing.Font("Yu Gothic UI", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label7.ForeColor = System.Drawing.Color.Red;
+            this.label7.Location = new System.Drawing.Point(956, 157);
+            this.label7.Name = "label7";
+            this.label7.Size = new System.Drawing.Size(24, 17);
+            this.label7.TabIndex = 32;
+            this.label7.Text = "XX";
             // 
             // skOrder1
             // 
@@ -312,7 +330,9 @@ namespace SKOrderTester
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1031, 604);
+            this.ClientSize = new System.Drawing.Size(1031, 605);
+            this.Controls.Add(this.label7);
+            this.Controls.Add(this.label6);
             this.Controls.Add(this.label5);
             this.Controls.Add(this.textBox1);
             this.Controls.Add(this.label4);
@@ -350,7 +370,6 @@ namespace SKOrderTester
         private System.Windows.Forms.TabPage tabPage2;
         private SKOrder skOrder1;
         private System.Windows.Forms.TabControl tabControl1;
-        private System.Windows.Forms.Timer timer1;
         private Label label1;
         private Button button1;
         private Label label2;
@@ -360,6 +379,8 @@ namespace SKOrderTester
         private Label label5;
         private DateTimePicker dateTimePicker1;
         private Button button2;
+        private Label label6;
+        private Label label7;
     }
 }
 
