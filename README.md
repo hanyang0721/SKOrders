@@ -23,8 +23,12 @@
 
 ### 使用方式
 設定Appconfig裡的username, password, futureaccount(例F020xxxxxx), python執行檔路徑, 策略路徑.
-在工作排程(Task scheduler)設定時間啟用, 程式開啟後會帶入config內的參數做自動登入
-程式從策略重新計算至寫入db紀錄後馬上將OrderLog撈出送訊號, 整個流程約1秒內可完成.
+設定linepush裡的兩個token
+CHANNEL_ACCESS_TOKEN = ""
+to = ""
+line的設定可參考這篇https://xiaosean.github.io/chatbot/2018-04-19-LineChatbot_usage/
+工作排程(Task scheduler)設定時間啟用, 程式開啟後會帶入config內的參數做自動登入
+程式每固定時間重新運算後至寫入db紀錄後馬上將OrderLog撈出送訊號, 整個流程約1秒內可完成.
 
 ### 注意事項
 * 群益API版本必須一致, 否則程式可能開不起來
