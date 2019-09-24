@@ -2,7 +2,7 @@
 
 群益自動下單機 </br>
 需搭配python backtrader <https://www.backtrader.com/> </br>
-適用於5分K或更長策略
+適用於5分K或更長策略. 不適用於tick級的操作策略
 
 ### 工作環境
 * 群益API版本 2.13.16 
@@ -15,6 +15,11 @@
 2. 內建預設8:50會執行第一次, timer interval為5分
 3. 提供line下單提醒(目前僅由database order筆數判斷, 之後會新增回報功能比對)
 4. 參數檔execonfig, 提供使用者自訂username, password, 策略script路徑
+
+### 更新
+2019-09-25
+1. 改用AccurateTimer(multimedia timer)降低內建timer導致的時間差.
+2. 新增skip order功能, 當訊號發出時不做下單動作, 僅發line提醒
 
 ### 使用方式
 設定Appconfig裡的username, password, futureaccount(例F020xxxxxx), python執行檔路徑, 策略路徑.
