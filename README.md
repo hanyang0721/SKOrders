@@ -18,8 +18,9 @@
 
 ### 更新
 <i>2019-09-25</i>
-1. 改用AccurateTimer(multimedia timer)降低內建timer導致的時間差.
-2. 新增skip order功能, 當訊號發出時不做下單動作, 僅發line提醒
+1. 改用AccurateTimer(multimedia timer)降低內建C# timer導致的時間差.
+2. 新增skip order功能, 當訊號發出時不做下單動作, 僅發line提醒</br>
+
 <i>2019-10-22</i>
 1. 使用multithreading方式, 並用highest priority避免時間差.
 
