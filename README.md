@@ -20,6 +20,8 @@
 <i>2019-09-25</i>
 1. 改用AccurateTimer(multimedia timer)降低內建timer導致的時間差.
 2. 新增skip order功能, 當訊號發出時不做下單動作, 僅發line提醒
+<i>2019-10-22</i>
+1. 使用multithreading方式, 並用highest priority避免時間差.
 
 ### 使用方式
 設定Appconfig裡的username, password, futureaccount(例F020xxxxxx), python執行檔路徑, 策略路徑.  
