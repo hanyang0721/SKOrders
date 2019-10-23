@@ -5,6 +5,7 @@ using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
 using SKCOMLib;
+using System.Threading;
 
 namespace SKOrderTester
 {
@@ -30,8 +31,9 @@ namespace SKOrderTester
         SKReplyLib m_pSKReply;
 
         AccurateTimer mTimer1;//mTimer2
+        Thread timerthread;
+        bool isthreadrunning = false;
         public int interval;
-
 
         #endregion
 
@@ -79,15 +81,13 @@ namespace SKOrderTester
             TimeSpan span = dt2 - dt1;
             //timer1.Interval = (int)span.TotalMilliseconds;
 
-            if (Math.Round(span.TotalMilliseconds,0) > 0)
+            if (span.TotalMilliseconds > 0)
             {
-                interval = (int)Math.Ceiling(span.TotalSeconds) * 1000;
-                //timer1.Enabled = true;
+                interval = (int)Math.Ceiling(span.TotalMilliseconds);
+                StartThread();
                 button1.Enabled = false;
                 button2.Enabled = true;
                 label3.Text = dt1.AddMilliseconds(interval).ToString();
-
-                mTimer1 = new AccurateTimer(this, new Action(TimerTick1), interval);
                 RecordLog("1. Timer Start First time");
             }
             else
@@ -97,19 +97,40 @@ namespace SKOrderTester
             }
         }
 
+        public void StartThread()
+        {
+            try
+            {
+                if (isthreadrunning)
+                {
+                    mTimer1.Stop();
+                    timerthread.Abort();
+                }
+                timerthread = new Thread(t =>
+                {
+                    mTimer1 = new AccurateTimer(this, new Action(TimerTick1), interval);
+                })
+                { IsBackground = true };
+                RecordLog("1.2 timerthread started interval:" + interval);
+                timerthread.Start();
+                timerthread.Priority = ThreadPriority.Highest;
+                isthreadrunning = true;
+            }
+            catch(Exception ex)
+            {
+                RecordLog(ex.Message);
+            }
+        }
 
         private void button1_Click(object sender, EventArgs e)
         {
             DateTime dt1 = DateTime.Now;
             DateTime dt2 = dateTimePicker1.Value;
-
             TimeSpan span = dt2 - dt1;
-
-            if (Math.Ceiling(span.TotalSeconds) > 0)
+            if (span.TotalMilliseconds > 0)
             {
-                interval = (int)Math.Ceiling(span.TotalSeconds) * 1000;
-                mTimer1 = new AccurateTimer(this, new Action(TimerTick1), interval);
-                //timer1.Enabled = true;
+                interval = (int)Math.Ceiling(span.TotalMilliseconds);
+                StartThread();
                 label3.Text = dt1.AddMilliseconds(interval).ToString();
                 RecordLog("1. Timer Starts at specified time");
                 button1.Enabled = false;
@@ -128,6 +149,7 @@ namespace SKOrderTester
             mTimer1.Stop();
             //timer1.Enabled = false;//stop timer
             label3.Text = "";//reset timer label
+            isthreadrunning = false;
         }
 
         private void btnInitialize_Click(object sender, EventArgs e)
@@ -147,66 +169,42 @@ namespace SKOrderTester
         public void WriteMessage(string strMsg)
         {
             listInformation.Items.Add(strMsg);
-
             listInformation.SelectedIndex = listInformation.Items.Count - 1;
-
-            //listInformation.HorizontalScrollbar = true;
-
-            // Create a Graphics object to use when determining the size of the largest item in the ListBox.
             Graphics g = listInformation.CreateGraphics();
-
-            // Determine the size for HorizontalExtent using the MeasureString method using the last item in the list.
             int hzSize = (int)g.MeasureString(listInformation.Items[listInformation.Items.Count - 1].ToString(), listInformation.Font).Width;
-            // Set the HorizontalExtent property.
             listInformation.HorizontalExtent = hzSize;
         }
 
         public void WriteMessage(int nCode)
         {
-            listInformation.Items.Add( m_pSKCenter.SKCenterLib_GetReturnCodeMessage(nCode) );
-
+            listInformation.Items.Add(m_pSKCenter.SKCenterLib_GetReturnCodeMessage(nCode));
             listInformation.SelectedIndex = listInformation.Items.Count - 1;
-
-            //listInformation.HorizontalScrollbar = true;
-
-            // Create a Graphics object to use when determining the size of the largest item in the ListBox.
             Graphics g = listInformation.CreateGraphics();
-
-            // Determine the size for HorizontalExtent using the MeasureString method using the last item in the list.
             int hzSize = (int)g.MeasureString(listInformation.Items[listInformation.Items.Count - 1].ToString(), listInformation.Font).Width;
-            // Set the HorizontalExtent property.
             listInformation.HorizontalExtent = hzSize;
         }
 
         private void GetMessage(string strType, int nCode, string strMessage)
         {
             string strInfo = "";
-
             if (nCode != 0)
                 strInfo ="【"+ m_pSKCenter.SKCenterLib_GetLastLogInfo()+ "】";
-
             WriteMessage("【" + strType + "】【" + strMessage + "】【" + m_pSKCenter.SKCenterLib_GetReturnCodeMessage(nCode) + "】" + strInfo);
         }
 
-        void OnShowAgreement(string strData)
+        private void OnShowAgreement(string strData)
         {
             MessageBox.Show(strData);
         }
 
         private void TimerTick1()
         {
-            //Option 1, run at preset time before day close
-            if (TimeSpan.Parse(DateTime.Now.ToString("HH:mm")) == TimeSpan.Parse("13:40"))
-            {
-                interval = 297000;//Call the last order at 13:44:47
-                RecordLog("2. Last Ticks");
-            }
-            else if(Convert.ToInt32(textBox1.Text.ToString())!=interval)
+            //Somehow, it looks like we can still trade at 13:45, then it's no need to to run earilier than day close
+            if(Convert.ToInt32(textBox1.Text.ToString())!=interval)
             {
                 interval = Convert.ToInt32(textBox1.Text.ToString());
-                mTimer1.Stop();
-                mTimer1 = new AccurateTimer(this, new Action(TimerTick1), interval);
-                RecordLog("2. Timer Ticks, interval changed");
+                StartThread();
+                RecordLog("2. Timer Ticks, interval changed (ms): " + interval);
             }
             else
             {
@@ -216,14 +214,6 @@ namespace SKOrderTester
             GetCurrentOrder();
             label3.Text = DateTime.Now.AddMilliseconds(interval).ToString("HH:mm:ss");
             label7.Text = GetSkipOrdersCount().ToString();
-            /*//Option 2, run on a normal interval
-            if (TimeSpan.Parse(DateTime.Now.ToString("HH:mm")) >= TimeSpan.Parse("08:45") && TimeSpan.Parse(DateTime.Now.ToString("HH:mm")) <= TimeSpan.Parse("13:45"))
-            {
-                RunBacktrader();
-                GetCurrentOrder();
-                label3.Text = DateTime.Now.AddMilliseconds(timer1.Interval).ToString("HH:mm:ss");
-            }
-            */
         }
 
         private void RunBacktrader()
@@ -254,7 +244,6 @@ namespace SKOrderTester
             {
                 RecordLog("4.2 Order Push To Line !!");
                 string scriptName = linepushpath;
-
                 Process p = new Process();
                 p.StartInfo = new ProcessStartInfo(pythonpath, scriptName)
                 {
@@ -275,9 +264,11 @@ namespace SKOrderTester
             using (SqlConnection connection = new SqlConnection(connectionstr))
             {
                 SqlCommand sqlcmd = new SqlCommand();
+                sqlcmd.Parameters.Add(new SqlParameter("message", message));
+                sqlcmd.Parameters.Add(new SqlParameter("dt", DateTime.Now.ToString("yyyy/MM/dd HH:mm:ss:fff")));
                 connection.Open();
                 sqlcmd.Connection = connection;
-                sqlcmd.CommandText = "INSERT INTO [Stock].[dbo].[ATM_DailyLog] (ExecTime, Steps) VALUES ('" + DateTime.Now.ToString("yyyy/MM/dd HH:mm:ss:fff") + "','" + message + "')";
+                sqlcmd.CommandText = "INSERT INTO [Stock].[dbo].[ATM_DailyLog] (ExecTime, Steps) VALUES (@dt, CAST(@message as varchar(128)) )";
                 sqlcmd.ExecuteNonQuery();
                 connection.Close();
             }
@@ -289,7 +280,7 @@ namespace SKOrderTester
             {
                 using (SqlConnection connection = new SqlConnection(connectionstr))
                 {
-                    int skipcount=0;
+                    int skipcount = 0;
                     SqlCommand sqlcmd = new SqlCommand();
                     connection.Open();
                     sqlcmd.Connection = connection;
@@ -303,10 +294,11 @@ namespace SKOrderTester
                     return skipcount;
                 }
             }
-            catch
+            catch (Exception ex)
             {
-                return 0;
+                RecordLog("5 " + ex.Message);
             }
+            return 0;
         }
 
         public void DecreaseSkipOrdersCount()
@@ -323,15 +315,18 @@ namespace SKOrderTester
                     connection.Close();
                 }
             }
-            catch
-            { }
+            catch (Exception ex)
+            {
+                RecordLog("5 " + ex.Message);
+            }
         }
 
         private void GetCurrentOrder()
         {
+            SqlConnection connection = null;
             try
             {
-                using (SqlConnection connection = new SqlConnection(connectionstr))
+                using (connection = new SqlConnection(connectionstr))
                 {
                     connection.Open();
                     int intervalMins = Convert.ToInt32(textBox1.Text.ToString()) / 1000 / 60;//convert to minute
@@ -339,11 +334,11 @@ namespace SKOrderTester
                     sqlcmd.Connection = connection;
 
                     RecordLog("4.2 GetCurrentOrder Start");
-
                     sqlcmd.CommandText = "SELECT * FROM [Stock].[dbo].[Orders] WHERE SignalTime BETWEEN " +
                                         " FORMAT(DATEADD(minute,-" + (intervalMins+1) + ",GETDATE()),'yyyy-MM-dd HH:mm')+':00' AND " +
                                         " FORMAT(DATEADD(minute,-" + (intervalMins-1) + ",GETDATE()),'yyyy-MM-dd HH:mm')+':00'";
                     
+                    //sqlcmd.CommandText = "SELECT * FROM [Stock].[dbo].[Orders] WHERE SignalTime=GETDATE() ";
                     //sqlcmd.CommandText = "SELECT TOP 2* FROM [Stock].[dbo].[Orders] ";
                     using (SqlDataReader reader = sqlcmd.ExecuteReader())
                     {
@@ -380,8 +375,14 @@ namespace SKOrderTester
                     connection.Close();
                 }
             }
-            catch 
-            {}
+            catch (Exception ex)
+            {
+                RecordLog("5 " + ex.Message);
+            }
+            finally
+            {
+                connection.Close();
+            }
         }
 
         private void MyOnFutureOrderSignal(string strLogInID, bool bAsyncOrder, FUTUREORDER pStock)
@@ -391,7 +392,5 @@ namespace SKOrderTester
             RecordLog("4.1 Order is issued !");
             WriteMessage("期貨委託：" + strMessage);
         }
-
-
     }
 }

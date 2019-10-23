@@ -50,7 +50,9 @@ namespace SKOrderTester
             this.dateTimePicker1 = new System.Windows.Forms.DateTimePicker();
             this.listInformation = new System.Windows.Forms.ListBox();
             this.tabPage1 = new System.Windows.Forms.TabPage();
+            this.skReply1 = new SKCOMTester.SKReply();
             this.tabPage2 = new System.Windows.Forms.TabPage();
+            this.skOrder1 = new SKCOMTester.SKOrder();
             this.tabControl1 = new System.Windows.Forms.TabControl();
             this.label2 = new System.Windows.Forms.Label();
             this.label3 = new System.Windows.Forms.Label();
@@ -59,8 +61,6 @@ namespace SKOrderTester
             this.label5 = new System.Windows.Forms.Label();
             this.label6 = new System.Windows.Forms.Label();
             this.label7 = new System.Windows.Forms.Label();
-            this.skOrder1 = new SKCOMTester.SKOrder();
-            this.skReply1 = new SKCOMTester.SKReply();
             this.groupBox1.SuspendLayout();
             this.tabPage1.SuspendLayout();
             this.tabPage2.SuspendLayout();
@@ -204,6 +204,19 @@ namespace SKOrderTester
             this.tabPage1.Text = "回報";
             this.tabPage1.UseVisualStyleBackColor = true;
             // 
+            // skReply1
+            // 
+            this.skReply1.AutoSize = true;
+            this.skReply1.Location = new System.Drawing.Point(3, 7);
+            this.skReply1.LoginID = "";
+            this.skReply1.LoginID2 = "";
+            this.skReply1.Name = "skReply1";
+            this.skReply1.Size = new System.Drawing.Size(1000, 870);
+            this.skReply1.SKReplyLib = null;
+            this.skReply1.SKReplyLib2 = null;
+            this.skReply1.TabIndex = 0;
+            this.skReply1.GetMessage += new SKCOMTester.SKReply.MyMessageHandler(this.GetMessage);
+            // 
             // tabPage2
             // 
             this.tabPage2.AutoScroll = true;
@@ -215,6 +228,17 @@ namespace SKOrderTester
             this.tabPage2.TabIndex = 1;
             this.tabPage2.Text = "下單";
             this.tabPage2.UseVisualStyleBackColor = true;
+            // 
+            // skOrder1
+            // 
+            this.skOrder1.Font = new System.Drawing.Font("Courier New", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(136)));
+            this.skOrder1.Location = new System.Drawing.Point(0, 0);
+            this.skOrder1.LoginID = "";
+            this.skOrder1.Name = "skOrder1";
+            this.skOrder1.OrderObj = null;
+            this.skOrder1.Size = new System.Drawing.Size(993, 379);
+            this.skOrder1.TabIndex = 0;
+            this.skOrder1.GetMessage += new SKCOMTester.SKOrder.MyMessageHandler(this.GetMessage);
             // 
             // tabControl1
             // 
@@ -301,30 +325,6 @@ namespace SKOrderTester
             this.label7.Size = new System.Drawing.Size(24, 17);
             this.label7.TabIndex = 32;
             this.label7.Text = "XX";
-            // 
-            // skOrder1
-            // 
-            this.skOrder1.Font = new System.Drawing.Font("Courier New", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(136)));
-            this.skOrder1.Location = new System.Drawing.Point(0, 0);
-            this.skOrder1.LoginID = "";
-            this.skOrder1.Name = "skOrder1";
-            this.skOrder1.OrderObj = null;
-            this.skOrder1.Size = new System.Drawing.Size(993, 379);
-            this.skOrder1.TabIndex = 0;
-            this.skOrder1.GetMessage += new SKCOMTester.SKOrder.MyMessageHandler(this.GetMessage);
-            // 
-            // skReply1
-            // 
-            this.skReply1.AutoSize = true;
-            this.skReply1.Location = new System.Drawing.Point(3, 7);
-            this.skReply1.LoginID = "";
-            this.skReply1.LoginID2 = "";
-            this.skReply1.Name = "skReply1";
-            this.skReply1.Size = new System.Drawing.Size(1000, 870);
-            this.skReply1.SKReplyLib = null;
-            this.skReply1.SKReplyLib2 = null;
-            this.skReply1.TabIndex = 0;
-            this.skReply1.GetMessage += new SKCOMTester.SKReply.MyMessageHandler(this.GetMessage);
             // 
             // Form1
             // 
