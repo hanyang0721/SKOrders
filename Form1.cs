@@ -111,7 +111,7 @@ namespace SKOrderTester
                     mTimer1 = new AccurateTimer(this, new Action(TimerTick1), interval);
                 })
                 { IsBackground = true };
-                RecordLog("1.2 timerthread started interval:" + interval);
+                RecordLog("1.2 Timerthread started interval:" + interval);
                 timerthread.Start();
                 timerthread.Priority = ThreadPriority.Highest;
                 isthreadrunning = true;
@@ -199,8 +199,21 @@ namespace SKOrderTester
 
         private void TimerTick1()
         {
+            DateTime dt1 = DateTime.Now;
+            DateTime dt2 = DateTime.Parse(label3.Text.ToString());
+            TimeSpan span = dt2 - dt1;
+
+            //This prevent event fire too early
+            if (span.TotalSeconds > 0)
+            {
+                RecordLog("1.4 Timer runs earilier than desired");
+                System.Threading.Thread.Sleep((int)span.TotalMilliseconds);
+                interval = Convert.ToInt32(textBox1.Text.ToString());
+                StartThread();
+            }
+
             //Somehow, it looks like we can still trade at 13:45, then it's no need to to run earilier than day close
-            if(Convert.ToInt32(textBox1.Text.ToString())!=interval)
+            if (Convert.ToInt32(textBox1.Text.ToString())!=interval)
             {
                 interval = Convert.ToInt32(textBox1.Text.ToString());
                 StartThread();
@@ -212,7 +225,7 @@ namespace SKOrderTester
             }
             RunBacktrader();
             GetCurrentOrder();
-            label3.Text = DateTime.Now.AddMilliseconds(interval).ToString("HH:mm:ss");
+            label3.Text = DateTime.Parse(label3.Text.ToString()).AddMilliseconds(interval).ToString("yyyy/MM/dd  hh:mm:ss") ;
             label7.Text = GetSkipOrdersCount().ToString();
         }
 
@@ -265,10 +278,10 @@ namespace SKOrderTester
             {
                 SqlCommand sqlcmd = new SqlCommand();
                 sqlcmd.Parameters.Add(new SqlParameter("message", message));
-                sqlcmd.Parameters.Add(new SqlParameter("dt", DateTime.Now.ToString("yyyy/MM/dd HH:mm:ss:fff")));
+                //sqlcmd.Parameters.Add(new SqlParameter("dt", DateTime.Now.ToString("yyyy/MM/dd HH:mm:ss:fff")));
                 connection.Open();
                 sqlcmd.Connection = connection;
-                sqlcmd.CommandText = "INSERT INTO [Stock].[dbo].[ATM_DailyLog] (ExecTime, Steps) VALUES (@dt, CAST(@message as varchar(128)) )";
+                sqlcmd.CommandText = "INSERT INTO [Stock].[dbo].[ATM_DailyLog] (ExecTime, Steps) VALUES (GETDATE(), CAST(@message as varchar(128)) )";
                 sqlcmd.ExecuteNonQuery();
                 connection.Close();
             }
