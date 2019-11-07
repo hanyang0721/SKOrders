@@ -5,10 +5,10 @@
 適用於5分K或更長策略. 不適用於tick級的操作策略
 
 ### 工作環境
-* 群益API版本 2.13.16 
+* 群益API 版本2.13.16, 必要環境輔助安裝工具 (Visual C++ 可轉發套件) https://www.microsoft.com/en-us/download/confirmation.aspx?id=26999
 * Python v.3.6.8
 * SQL Server Developer 2016
-* Windows 10 Professional
+* Windows 10 Pro
 
 ### 功能
 1. 透過timer固定時間執行策略運算, 由策略更新Order資料庫, 程式隨即對透過群益API下單
