@@ -9,6 +9,7 @@
 * Python v.3.6.8
 * SQL Server Developer 2016
 * Windows 10 Pro
+* pip install line-bot-sdk
 
 ### 功能
 1. 透過timer固定時間執行策略運算, 由策略更新Order資料庫, 程式隨即對透過群益API下單
