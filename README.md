@@ -23,7 +23,8 @@
 2. 新增skip order功能, 當訊號發出時不做下單動作, 僅發line提醒</br>
 
 <i>2019-10-22</i>
-1. 使用multithreading方式, 並用highest priority避免時間差.
+1. 使用multithreading方式支援多策略下單 
+2. 使用highest priority避免時間差.
 
 ### 使用方式
 設定Appconfig裡的username, password, futureaccount(例F020xxxxxx), python執行檔路徑, 策略路徑.  
@@ -38,6 +39,7 @@ line的設定可參考這篇https://xiaosean.github.io/chatbot/2018-04-19-LineCh
 * 群益API版本必須一致, 否則程式可能開不起來
 * 必須有群益期貨帳號, 並且開通 API 使用權限後才能使用(通常為申請API隔日生效)
 * Line push功能需有自己的line@, Channel Access Token (https://developers.line.biz)
+* 必須啟用Windows Time service做time syncronization, 如用vmware可使用vmtool
 
 ### 程式畫面
 ![image](https://github.com/hanyang0721/SKOrders/blob/master/SKOrder.PNG)
