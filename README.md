@@ -7,14 +7,14 @@
 ### 工作環境
 * 群益API 版本2.13.16, 必要環境輔助安裝工具 (Visual C++ 可轉發套件) https://www.microsoft.com/en-us/download/confirmation.aspx?id=26999
 * Python v.3.6.8
-* SQL Server Developer 2016
+* SQL Server Developer 2017
 * Windows 10 Pro
 * pip install line-bot-sdk
 
 ### 功能
-1. 透過timer固定時間執行策略運算, 由策略更新Order資料庫, 程式隨即對透過群益API下單
+1. 透過timer執行策略運算, 策略運算後隨即對透過群益API下單, 一個cycle約在1000ms內
 2. 內建預設8:50會執行第一次, timer interval為5分
-3. 提供line下單提醒(目前僅由database order筆數判斷, 之後會新增回報功能比對)
+3. 提供line下單提醒
 4. 參數檔execonfig, 提供使用者自訂username, password, 策略script路徑, 期貨帳號
 
 ### 更新
