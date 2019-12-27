@@ -631,18 +631,8 @@ namespace SKCOMTester
 
         #endregion
 
-        public static int numOfIds(string pool)
-        {
-            int totalcount = 0;
-            for (int i = 0; i < pool.Length; i = i + 8)
-            {
-                if (pool.Substring(i, 7) == "8")
-                    totalcount++;
 
-            }
-            return totalcount;
-        }
-        private void OrderInitialize_Click(object sender, EventArgs e)
+      　 private void OrderInitialize_Click(object sender, EventArgs e)
       　 {
       　     if (m_bfirst == true)
       　     {
