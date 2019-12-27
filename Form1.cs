@@ -6,6 +6,7 @@ using System.Linq;
 using System.Windows.Forms;
 using SKCOMLib;
 using System.Threading;
+using System.Collections.Generic;
 
 namespace SKOrderTester
 {
@@ -21,9 +22,12 @@ namespace SKOrderTester
         int m_nCode;
         private string connectionstr = System.Configuration.ConfigurationManager.AppSettings.Get("Connectionstring");
         private string FutureAccount = System.Configuration.ConfigurationManager.AppSettings.Get("FutureAccount");
-        private string stratpath = System.Configuration.ConfigurationManager.AppSettings.Get("Stratpath");
+        private string FutureAccount2 = System.Configuration.ConfigurationManager.AppSettings.Get("FutureAccount2");
         private string pythonpath = System.Configuration.ConfigurationManager.AppSettings.Get("Pythonpath");
         private string linepushpath = System.Configuration.ConfigurationManager.AppSettings.Get("LinePushpath");
+        private string morning_stratpath = System.Configuration.ConfigurationManager.AppSettings.Get("stratpath1");
+        private string night_stratpath = System.Configuration.ConfigurationManager.AppSettings.Get("stratpath2");
+        private int presetDuration = Convert.ToInt32(System.Configuration.ConfigurationManager.AppSettings.Get("durationms"));
 
         SKCenterLib m_pSKCenter;
         SKCenterLib m_pSKCenter2;
@@ -33,7 +37,7 @@ namespace SKOrderTester
         AccurateTimer mTimer1;//mTimer2
         Thread timerthread;
         bool isthreadrunning = false;
-        public int interval;
+        private int intervalms;
 
         #endregion
 
@@ -61,33 +65,46 @@ namespace SKOrderTester
         }
 
         #endregion
+        /*If time is between 0845~0850,1500~1505, starttime~starttime+5, it should be automatically start the timer
+         *If specify time is 00:00 it should be cross to next day
+         * Put FRIST RUNTIME in the timearrary
+        */
         private void Form1_Load(object sender, EventArgs e)
         {
-            OnFutureOrderSignal += new Form1.OrderHandler(this.MyOnFutureOrderSignal);
-            btnInitialize.PerformClick();
-            Button orderbtnInitialize = skOrder1.Controls.Find("OrderInitialize", true).FirstOrDefault() as Button;
-            Button getAccbtnInitialize = skOrder1.Controls.Find("btnGetAccount", true).FirstOrDefault() as Button;
-            Button getCertbtnInitialize = skOrder1.Controls.Find("btnReadCert", true).FirstOrDefault() as Button;
-            
-            orderbtnInitialize.PerformClick();
-            getAccbtnInitialize.PerformClick();
-            getCertbtnInitialize.PerformClick();
+            List<string> timearrary = new List<string> {"08:50", "15:05" };
+            string[] args = Environment.GetCommandLineArgs();
+            if (args.Length>1)
+            {
+                if (args[1].Equals("-StartTime", StringComparison.InvariantCultureIgnoreCase))
+                    timearrary.Add(args[2]);
+            }
 
-            label7.Text = GetSkipOrdersCount().ToString();
+            DateTime nextruntime;
+            TimeSpan span=TimeSpan.Zero;
+            DateTime dtnow=DateTime.MinValue;//Initialize a value
+            foreach (string items in timearrary)
+            {
+                dtnow = DateTime.Now;
+               
+                if (items=="00:00")
+                    nextruntime = DateTime.Parse(DateTime.Now.AddDays(1).ToString("yyyy/MM/dd") + " " + items);
+                else
+                    nextruntime = DateTime.Parse(DateTime.Now.ToString("yyyy/MM/dd") + " " + items);
 
-            DateTime dt1 = DateTime.Now;
-            DateTime dt2 = DateTime.Parse(DateTime.Now.ToString("yyyy/MM/dd") + " 08:50:00");
-            //DateTime dt2 = DateTime.Parse(DateTime.Now.ToString("yyyy/MM/dd") + " 00:25:00");
-            TimeSpan span = dt2 - dt1;
-            //timer1.Interval = (int)span.TotalMilliseconds;
+                if (dtnow < nextruntime && dtnow.AddMinutes(5) > nextruntime)
+                {
+                    span = nextruntime - dtnow;
+                    break;
+                }
+            }
 
             if (span.TotalMilliseconds > 0)
             {
-                interval = (int)Math.Ceiling(span.TotalMilliseconds);
+                intervalms = (int)Math.Ceiling(span.TotalMilliseconds);
                 StartThread();
                 button1.Enabled = false;
                 button2.Enabled = true;
-                label3.Text = dt1.AddMilliseconds(interval).ToString();
+                label3.Text = dtnow.AddMilliseconds(intervalms).ToString();
                 RecordLog("1. Timer Start First time");
             }
             else
@@ -95,6 +112,38 @@ namespace SKOrderTester
                 RecordLog("1. Form loaded");
                 button2.Enabled = false;
             }
+
+            /*UI manipulation
+            */
+            OnFutureOrderSignal += new Form1.OrderHandler(this.MyOnFutureOrderSignal);
+            btnInitialize.PerformClick();
+            Button orderbtnInitialize = skOrder1.Controls.Find("OrderInitialize", true).FirstOrDefault() as Button;
+            Button getAccbtnInitialize = skOrder1.Controls.Find("btnGetAccount", true).FirstOrDefault() as Button;
+            Button getCertbtnInitialize = skOrder1.Controls.Find("btnReadCert", true).FirstOrDefault() as Button;
+
+            orderbtnInitialize.PerformClick();
+            getAccbtnInitialize.PerformClick();
+            getCertbtnInitialize.PerformClick();
+            label7.Text = GetSkipOrdersCount().ToString();
+            textBox1.Text = presetDuration.ToString();
+        }
+
+        public string GetFutureAccount()
+        {
+            var tCurrent = TimeSpan.Parse(DateTime.Now.ToString("HH:mm"));
+            var t1 = TimeSpan.Parse("08:45");
+            var t2 = TimeSpan.Parse("13:45");
+            //var t3 = TimeSpan.Parse("15:00");
+            return tCurrent > t1 && tCurrent < t2 ? FutureAccount : FutureAccount2;
+        }
+
+        public string GetCurrentStrategy()
+        {
+            var tCurrent = TimeSpan.Parse(DateTime.Now.ToString("HH:mm"));
+            var t1 = TimeSpan.Parse("08:45");
+            var t2 = TimeSpan.Parse("13:45");
+            //var t3 = TimeSpan.Parse("15:00");
+            return tCurrent > t1 && tCurrent < t2 ? morning_stratpath : night_stratpath;
         }
 
         public void StartThread()
@@ -108,13 +157,13 @@ namespace SKOrderTester
                 }
                 timerthread = new Thread(t =>
                 {
-                    mTimer1 = new AccurateTimer(this, new Action(TimerTick1), interval);
+                    mTimer1 = new AccurateTimer(this, new Action(TimerTick1), intervalms);
                 })
                 { IsBackground = true };
-                RecordLog("1.2 Timerthread started interval:" + interval);
                 timerthread.Start();
                 timerthread.Priority = ThreadPriority.Highest;
                 isthreadrunning = true;
+                RecordLog("1.2 Timerthread started interval:" + intervalms);
             }
             catch(Exception ex)
             {
@@ -122,16 +171,16 @@ namespace SKOrderTester
             }
         }
 
-        private void button1_Click(object sender, EventArgs e)
+        private void Button1_Click(object sender, EventArgs e)
         {
             DateTime dt1 = DateTime.Now;
             DateTime dt2 = dateTimePicker1.Value;
             TimeSpan span = dt2 - dt1;
             if (span.TotalMilliseconds > 0)
             {
-                interval = (int)Math.Ceiling(span.TotalMilliseconds);
+                intervalms = (int)Math.Ceiling(span.TotalMilliseconds);
                 StartThread();
-                label3.Text = dt1.AddMilliseconds(interval).ToString();
+                label3.Text = dt1.AddMilliseconds(intervalms).ToString();
                 RecordLog("1. Timer Starts at specified time");
                 button1.Enabled = false;
                 button2.Enabled = true;
@@ -142,7 +191,7 @@ namespace SKOrderTester
             }
         }
 
-        private void button2_Click(object sender, EventArgs e)
+        private void Button2_Click(object sender, EventArgs e)
         {
             button1.Enabled = true;
             button2.Enabled = false;
@@ -202,22 +251,21 @@ namespace SKOrderTester
             DateTime dt1 = DateTime.Now;
             DateTime dt2 = DateTime.Parse(label3.Text.ToString());
             TimeSpan span = dt2 - dt1;
-
+            
             //This prevent event fire too early
             if (span.TotalSeconds > 0)
             {
-                RecordLog("1.4 Timer runs earilier than desired");
                 System.Threading.Thread.Sleep((int)span.TotalMilliseconds);
-                interval = Convert.ToInt32(textBox1.Text.ToString());
+                intervalms = Convert.ToInt32(textBox1.Text.ToString());
                 StartThread();
+                RecordLog("1.4 Timer runs earilier than desired");
             }
 
-            //Somehow, it looks like we can still trade at 13:45, then it's no need to to run earilier than day close
-            if (Convert.ToInt32(textBox1.Text.ToString())!=interval)
+            if (Convert.ToInt32(textBox1.Text.ToString())!= intervalms)
             {
-                interval = Convert.ToInt32(textBox1.Text.ToString());
+                intervalms = Convert.ToInt32(textBox1.Text.ToString());
                 StartThread();
-                RecordLog("2. Timer Ticks, interval changed (ms): " + interval);
+                RecordLog("2. Timer Ticks, interval changed (ms): " + intervalms);
             }
             else
             {
@@ -225,16 +273,19 @@ namespace SKOrderTester
             }
             RunBacktrader();
             GetCurrentOrder();
-            label3.Text = DateTime.Parse(label3.Text.ToString()).AddMilliseconds(interval).ToString("yyyy/MM/dd  hh:mm:ss") ;
+            label3.Text = DateTime.Parse(label3.Text.ToString()).AddMilliseconds(intervalms).ToString("yyyy/MM/dd  HH:mm:ss") ;
             label7.Text = GetSkipOrdersCount().ToString();
         }
-
+        /* string output = p.StandardOutput.ReadToEnd();
+         * p.WaitForExit();
+         * These two line must be there, otherwise the app would freeze, and it must wait the backtrader to finish signal process
+        */
         private void RunBacktrader()
         {
             try
             {
                 RecordLog("3. Python Starts");
-                string scriptName = stratpath;
+                string scriptName = GetCurrentStrategy();
 
                 Process p = new Process();
                 p.StartInfo = new ProcessStartInfo(pythonpath, scriptName)
@@ -274,16 +325,22 @@ namespace SKOrderTester
 
         private void RecordLog(string message)
         {
-            using (SqlConnection connection = new SqlConnection(connectionstr))
+            try
             {
-                SqlCommand sqlcmd = new SqlCommand();
-                sqlcmd.Parameters.Add(new SqlParameter("message", message));
-                //sqlcmd.Parameters.Add(new SqlParameter("dt", DateTime.Now.ToString("yyyy/MM/dd HH:mm:ss:fff")));
-                connection.Open();
-                sqlcmd.Connection = connection;
-                sqlcmd.CommandText = "INSERT INTO [Stock].[dbo].[ATM_DailyLog] (ExecTime, Steps) VALUES (GETDATE(), CAST(@message as varchar(128)) )";
-                sqlcmd.ExecuteNonQuery();
-                connection.Close();
+                using (SqlConnection connection = new SqlConnection(connectionstr))
+                {
+                    SqlCommand sqlcmd = new SqlCommand();
+                    sqlcmd.Parameters.Add(new SqlParameter("message", message));
+                    //sqlcmd.Parameters.Add(new SqlParameter("dt", DateTime.Now.ToString("yyyy/MM/dd HH:mm:ss:fff")));
+                    connection.Open();
+                    sqlcmd.Connection = connection;
+                    sqlcmd.CommandText = "INSERT INTO [Stock].[dbo].[ATM_DailyLog] (ExecTime, Steps) VALUES (GETDATE(), CAST(@message as varchar(128)) )";
+                    sqlcmd.ExecuteNonQuery();
+                    connection.Close();
+                }
+            }
+            catch(Exception ex)
+            {
             }
         }
 
@@ -301,7 +358,7 @@ namespace SKOrderTester
                     string returnval = sqlcmd.ExecuteScalar().ToString();
                     if (returnval != null)
                     {
-                        skipcount = Convert.ToInt16(returnval);
+                        skipcount = Convert.ToInt32(returnval);
                     }
                     connection.Close();
                     return skipcount;
@@ -357,16 +414,15 @@ namespace SKOrderTester
                     {
                         while (reader.Read())
                         {
-                            RecordLog("4.0 Order is ready to be placed !");
                             FUTUREORDER pFutureOrder = new FUTUREORDER();
-                            pFutureOrder.bstrFullAccount = FutureAccount;
-                            pFutureOrder.bstrPrice = "M";
+                            pFutureOrder.bstrFullAccount = GetFutureAccount();
+                            pFutureOrder.bstrPrice = reader["DealPrice"].ToString();
                             pFutureOrder.bstrStockNo = reader["stockNo"].ToString();
-                            pFutureOrder.nQty = Convert.ToInt32(reader["Size"].ToString());
-                            pFutureOrder.sBuySell = (short)Convert.ToInt32(reader["BuyOrSell"].ToString());
-                            pFutureOrder.sDayTrade = 0;
+                            pFutureOrder.nQty = Convert.ToInt16(reader["Size"].ToString());
+                            pFutureOrder.sBuySell = Convert.ToInt16(reader["BuyOrSell"].ToString());
+                            pFutureOrder.sDayTrade = Convert.ToInt16(reader["DayTrade"].ToString());
                             //(short)Convert.ToInt32(reader["DayTrade"].ToString()); //當沖0:否 1:是
-                            pFutureOrder.sTradeType = 1;
+                            pFutureOrder.sTradeType = Convert.ToInt16(reader["TradeType"].ToString());
                             //(short)Convert.ToInt32(reader["TradeType"].ToString()); ;//0:ROD  1:IOC  2:FOK
 
                             //0新倉 1平倉 2自動
@@ -382,6 +438,7 @@ namespace SKOrderTester
                                 DecreaseSkipOrdersCount();
                                 OrderPushToLine();
                             }
+                            RecordLog("4.0 Order loop is finished !");
                         }
                     }
                     RecordLog("4.3 GetCurrentOrder Done");
