@@ -631,8 +631,18 @@ namespace SKCOMTester
 
         #endregion
 
+        public static int numOfIds(string pool)
+        {
+            int totalcount = 0;
+            for (int i = 0; i < pool.Length; i = i + 8)
+            {
+                if (pool.Substring(i, 7) == "8")
+                    totalcount++;
 
-      　 private void OrderInitialize_Click(object sender, EventArgs e)
+            }
+            return totalcount;
+        }
+        private void OrderInitialize_Click(object sender, EventArgs e)
       　 {
       　     if (m_bfirst == true)
       　     {
@@ -657,23 +667,6 @@ namespace SKCOMTester
       　
       　     SendReturnMessage("Order", m_nCode, "SKOrderLib_Initialize");
       　 }
-        
-        private void FutureOrderBtn_Click(object sender, EventArgs e)
-        {
-            FUTUREORDER pFutureOrder = new FUTUREORDER();
-
-            pFutureOrder.bstrFullAccount = "F0200009834349";
-            pFutureOrder.bstrPrice = "10901";
-            pFutureOrder.bstrStockNo = "MTX00";
-            pFutureOrder.nQty = 1;
-            pFutureOrder.sBuySell = (short)1;
-            pFutureOrder.sDayTrade = (short)0;
-            pFutureOrder.sTradeType = (short)0;
-            pFutureOrder.sNewClose = (short)2;
-            pFutureOrder.sReserved = (short)0;
-
-            OnFutureOrderCLRSignal?.Invoke("", false, pFutureOrder);
-        }
 
         private void MyOnFutureOrderSignal(string strLogInID, bool bAsyncOrder, FUTUREORDER pStock)
         {
