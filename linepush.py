@@ -3,8 +3,8 @@ from linebot.models import TextSendMessage, ImageSendMessage
 from linebot.exceptions import LineBotApiError
 import DBconnect
 
-CHANNEL_ACCESS_TOKEN = "d7bpIjXLueJZU57+8uTAh8c0Jgu56nAJbzZ+v9xdwb3oc6U4ZFeDefeMfUOZS6RCLZBWdM/FeLcdqVXtyTXmSbp6IFgaK447DgKYMwKjTQuddRL+LBcjTsi/ybgn93PC6n3Wg+CqJAGu8nkl6EVf3QdB04t89/1O/w1cDnyilFU="
-to = "U534ce399cdf9e0bd77908f1f03599826"
+CHANNEL_ACCESS_TOKEN = ""
+to = ""
 
 line_bot_api = LineBotApi(CHANNEL_ACCESS_TOKEN)
 
