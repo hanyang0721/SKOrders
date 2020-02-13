@@ -74,61 +74,71 @@ namespace SKOrderTester
         */
         private void Form1_Load(object sender, EventArgs e)
         {
-            List<string> timearrary = new List<string> {"08:50", "15:05" };
-            string[] args = Environment.GetCommandLineArgs();
-            if (args.Length>1)
+            Process[] processes = Process.GetProcessesByName("StockATM");
+            if (processes.Length > 1)
             {
-                if (args[1].Equals("-StartTime", StringComparison.InvariantCultureIgnoreCase))
-                    timearrary.Add(args[2]);
-            }
-
-            DateTime nextruntime;
-            TimeSpan span=TimeSpan.Zero;
-            DateTime dtnow=DateTime.MinValue;//Initialize a value
-            foreach (string items in timearrary)
-            {
-                dtnow = DateTime.Now;
-               
-                if (items=="00:00")
-                    nextruntime = DateTime.Parse(DateTime.Now.AddDays(1).ToString("yyyy/MM/dd") + " " + items);
-                else
-                    nextruntime = DateTime.Parse(DateTime.Now.ToString("yyyy/MM/dd") + " " + items);
-
-                if (dtnow < nextruntime && dtnow.AddMinutes(5) > nextruntime)
-                {
-                    span = nextruntime - dtnow;
-                    break;
-                }
-            }
-
-            if (span.TotalMilliseconds > 0)
-            {
-                intervalms = (int)Math.Ceiling(span.TotalMilliseconds);
-                StartThread();
-                button1.Enabled = false;
-                button2.Enabled = true;
-                label3.Text = dtnow.AddMilliseconds(intervalms).ToString();
-                RecordLog("1. Timer Start First time");
+                MessageBox.Show("StockATM is already open", "Warning", MessageBoxButtons.OK);
+                RecordLog("99.StockATM is already open");
+                Application.Exit();
             }
             else
             {
-                RecordLog("1. Form loaded");
-                button2.Enabled = false;
+                List<string> timearrary = new List<string> { "08:50", "15:05" };
+                string[] args = Environment.GetCommandLineArgs();
+                if (args.Length > 1)
+                {
+                    if (args[1].Equals("-StartTime", StringComparison.InvariantCultureIgnoreCase))
+                        timearrary.Add(args[2]);
+                }
+
+                DateTime nextruntime;
+                TimeSpan span = TimeSpan.Zero;
+                DateTime dtnow = DateTime.MinValue;//Initialize a value
+                foreach (string items in timearrary)
+                {
+                    dtnow = DateTime.Now;
+
+                    if (items == "00:00")
+                        nextruntime = DateTime.Parse(DateTime.Now.AddDays(1).ToString("yyyy/MM/dd") + " " + items);
+                    else
+                        nextruntime = DateTime.Parse(DateTime.Now.ToString("yyyy/MM/dd") + " " + items);
+
+                    if (dtnow < nextruntime && dtnow.AddMinutes(5) > nextruntime)
+                    {
+                        span = nextruntime - dtnow;
+                        break;
+                    }
+                }
+
+                if (span.TotalMilliseconds > 0)
+                {
+                    intervalms = (int)Math.Ceiling(span.TotalMilliseconds);
+                    StartThread();
+                    button1.Enabled = false;
+                    button2.Enabled = true;
+                    label3.Text = dtnow.AddMilliseconds(intervalms).ToString();
+                    RecordLog("1. Timer Start First time");
+                }
+                else
+                {
+                    RecordLog("1. Form loaded");
+                    button2.Enabled = false;
+                }
+
+                /*UI manipulation
+                */
+                OnFutureOrderSignal += new Form1.OrderHandler(this.MyOnFutureOrderSignal);
+                btnInitialize.PerformClick();
+                Button orderbtnInitialize = skOrder1.Controls.Find("OrderInitialize", true).FirstOrDefault() as Button;
+                Button getAccbtnInitialize = skOrder1.Controls.Find("btnGetAccount", true).FirstOrDefault() as Button;
+                Button getCertbtnInitialize = skOrder1.Controls.Find("btnReadCert", true).FirstOrDefault() as Button;
+
+                orderbtnInitialize.PerformClick();
+                getAccbtnInitialize.PerformClick();
+                getCertbtnInitialize.PerformClick();
+                label7.Text = GetSkipOrdersCount().ToString();
+                textBox1.Text = presetDuration.ToString();
             }
-
-            /*UI manipulation
-            */
-            OnFutureOrderSignal += new Form1.OrderHandler(this.MyOnFutureOrderSignal);
-            btnInitialize.PerformClick();
-            Button orderbtnInitialize = skOrder1.Controls.Find("OrderInitialize", true).FirstOrDefault() as Button;
-            Button getAccbtnInitialize = skOrder1.Controls.Find("btnGetAccount", true).FirstOrDefault() as Button;
-            Button getCertbtnInitialize = skOrder1.Controls.Find("btnReadCert", true).FirstOrDefault() as Button;
-
-            orderbtnInitialize.PerformClick();
-            getAccbtnInitialize.PerformClick();
-            getCertbtnInitialize.PerformClick();
-            label7.Text = GetSkipOrdersCount().ToString();
-            textBox1.Text = presetDuration.ToString();
         }
 
         public string GetFutureAccount()
