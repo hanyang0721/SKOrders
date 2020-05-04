@@ -47,5 +47,5 @@ https://github.com/hanyang0721/SKOrders
 * 建議啟用Windows Time service做time syncronization, 如用vmware可使用vmtool, VM會有時間不同步問題
 
 ### 程式畫面
-![image](https://github.com/hanyang0721/SKOrders/blob/master/SKOrder.PNG)
+![image](https://github.com/hanyang0721/image/blob/master/SKOrder.png)
 
