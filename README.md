@@ -11,20 +11,21 @@ https://github.com/hanyang0721/Stock-Database
 https://github.com/hanyang0721/Backtrader  
 https://github.com/hanyang0721/SKOrders
 
-安置完畢後需設定兩個工作排程定時啟動SKOrder跟ATMMonitor
+安置完畢後需設定兩個工作排程定時啟動SKOrder& SKQoute跟ATMMonitor
 
 ### 工作環境
-* 群益API 版本2.13.16, 必要環境輔助安裝工具 (Visual C++ 可轉發套件) https://www.microsoft.com/en-us/download/confirmation.aspx?id=26999
+* 群益API 版本2.13.23(2020 June釋出), 必要環境輔助安裝工具 (Visual C++ 可轉發套件) https://www.microsoft.com/en-us/download/confirmation.aspx?id=26999
 * Python v.3.6.8
 * SQL Server Developer 2017
 * Windows 10 Pro
 * pip install line-bot-sdk
 
 ### 功能
-1. 透過timer執行策略運算, 策略運算後隨即對透過群益API下單, 一個cycle約在1000ms內
+1. 透過AccurateTimer執行策略運算, 策略運算後隨即對透過群益API下單, 一個cycle約在1000ms內
 2. 內建預設8:50會執行第一次, timer interval為5分
 3. 提供line下單提醒
-4. 參數檔execonfig, 提供使用者自訂username, password, 策略script路徑, 期貨帳號
+4. 提供參數檔execonfig, 儲存使用者自訂username, password, 策略script路徑, 期貨帳號
+5. 提供多策略下單
 
 ### 更新
 <i>2019-09-25</i>
@@ -44,7 +45,7 @@ https://github.com/hanyang0721/SKOrders
 * 群益API版本必須一致, 否則程式可能開不起來
 * 必須有群益期貨帳號, 並且開通 API 使用權限後才能使用
 * Line push功能需有自己的line@, Channel Access Token (https://developers.line.biz)
-* 建議啟用Windows Time service做time syncronization, 如用vmware可使用vmtool, VM會有時間不同步問題
+* 建議啟用Windows Time service做time syncronization, 如用vmware可使用vmtool, VM可能會有時間不同步問題
 
 ### 程式畫面
 ![image](https://github.com/hanyang0721/image/blob/master/SKOrder.png)
