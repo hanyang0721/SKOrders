@@ -4,6 +4,15 @@
 需搭配python backtrader <https://www.backtrader.com/> </br>
 適用於5分K或更長策略. 不適用於短tick的操作策略. 因process整個run完約需1sec(1000ms)
 
+### 缺一不可
+https://github.com/hanyang0721/SKQuotes  
+https://github.com/hanyang0721/ATMMonitor  
+https://github.com/hanyang0721/Stock-Database  
+https://github.com/hanyang0721/Backtrader  
+https://github.com/hanyang0721/SKOrders
+
+安置完畢後需設定兩個工作排程定時啟動SKOrder跟ATMMonitor
+
 ### 工作環境
 * 群益API 版本2.13.16, 必要環境輔助安裝工具 (Visual C++ 可轉發套件) https://www.microsoft.com/en-us/download/confirmation.aspx?id=26999
 * Python v.3.6.8
@@ -38,5 +47,5 @@
 * 建議啟用Windows Time service做time syncronization, 如用vmware可使用vmtool, VM會有時間不同步問題
 
 ### 程式畫面
-![image](https://github.com/hanyang0721/SKOrders/blob/master/SKOrder.PNG)
+![image](https://github.com/hanyang0721/image/blob/master/SKOrder.png)
 
