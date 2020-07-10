@@ -48,11 +48,6 @@ namespace SKCOMTester
             InitializeComponent();
         }
 
-        private void SKOrder_Load(object sender, EventArgs e)
-        {
-            
-        }
-
         #endregion
 
         #region API Event
@@ -73,7 +68,6 @@ namespace SKCOMTester
         {
             WriteMessage("[OnAsyncOrder]Thread ID:" + nThreaID.ToString() + " Code:" + nCode.ToString() + " Message:" + bstrMessage);
         }
-
 
         void m_pSKOrder_OnRealBalanceReport(string bstrData)
         {
@@ -130,8 +124,6 @@ namespace SKCOMTester
         {
             WriteMessage("[OnBalanceQuery]" + bstrData);
         }
-
-        
 
         #endregion
 
@@ -210,8 +202,6 @@ namespace SKCOMTester
             WriteMessage("期貨委託：" + strMessage);
             SendReturnMessage("Order", m_nCode, "SendFutureOrder");
         }
-
-
 
         private void futureOrderControl1_OnFutureOrderCLRSignal(string strLogInID, bool bAsyncOrder, FUTUREORDER pStock)
         {

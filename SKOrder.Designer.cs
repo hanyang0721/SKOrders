@@ -139,7 +139,6 @@ namespace SKCOMTester
             this.Font = new System.Drawing.Font("Courier New", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(136)));
             this.Name = "SKOrder";
             this.Size = new System.Drawing.Size(997, 364);
-            this.Load += new System.EventHandler(this.SKOrder_Load);
             this.tabPage2.ResumeLayout(false);
             this.tabControl1.ResumeLayout(false);
             this.ResumeLayout(false);
