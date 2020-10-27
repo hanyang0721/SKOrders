@@ -95,7 +95,6 @@ namespace SKOrderTester
         //----------------------------------------------------------------------
         private void btnSendFutureOrder_Click(object sender, EventArgs e)
         {
-            m_UserAccount = "F0200009834349";
             if (m_UserAccount == "")
             {
                 MessageBox.Show("請選擇期貨帳號");
@@ -108,6 +107,7 @@ namespace SKOrderTester
             int nFlag;
             string strPrice;
             int nQty;
+            int nNewClose;
 
             if (txtStockNo.Text.Trim() == "")
             {
@@ -136,6 +136,7 @@ namespace SKOrderTester
                 return;
             }
             nFlag = boxFlag.SelectedIndex;
+            nNewClose = boxNewClose.SelectedIndex;
 
             double dPrice = 0.0;
             //if (double.TryParse(txtPrice.Text.Trim(), out dPrice) == false)
@@ -161,6 +162,7 @@ namespace SKOrderTester
             pFutureOrder.sBuySell           = (short)nBidAsk;
             pFutureOrder.sDayTrade          = (short)nFlag;
             pFutureOrder.sTradeType         = (short)nPeriod;
+            pFutureOrder.sNewClose = (short)nNewClose;
 
             OnFutureOrderSignal?.Invoke(m_UserID, false, pFutureOrder);
         }
@@ -179,6 +181,7 @@ namespace SKOrderTester
             int nFlag;
             string strPrice;
             int nQty;
+            int nNewClose;
 
             if (txtStockNo.Text.Trim() == "")
             {
@@ -223,6 +226,8 @@ namespace SKOrderTester
                 return;
             }
 
+            nNewClose = boxNewClose.SelectedIndex;
+
             FUTUREORDER pFutureOrder = new FUTUREORDER();
 
             pFutureOrder.bstrFullAccount = m_UserAccount;
@@ -231,18 +236,17 @@ namespace SKOrderTester
             pFutureOrder.nQty = nQty;
             pFutureOrder.sBuySell = (short)nBidAsk;
             pFutureOrder.sDayTrade = (short)nFlag;
-            pFutureOrder.sTradeType = (short)nPeriod;            
+            pFutureOrder.sTradeType = (short)nPeriod;
+            pFutureOrder.sNewClose = (short)nNewClose;
 
             if (OnFutureOrderSignal != null)
             {
                 OnFutureOrderSignal(m_UserID, true, pFutureOrder);
             }
-          
         }
 
         private void btnSendFutureOrderCLR_Click(object sender, EventArgs e)
         {
-            m_UserAccount = "F0200009834349";
             if (m_UserAccount == "")
             {
                 MessageBox.Show("請選擇期貨帳號");

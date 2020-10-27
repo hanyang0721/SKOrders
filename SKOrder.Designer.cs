@@ -40,6 +40,14 @@ namespace SKCOMTester
             this.tabPage2 = new System.Windows.Forms.TabPage();
             this.futureOrderControl1 = new SKOrderTester.FutureOrderControl();
             this.tabControl1 = new System.Windows.Forms.TabControl();
+            this.boxStockAccount = new System.Windows.Forms.ComboBox();
+            this.boxFutureAccount = new System.Windows.Forms.ComboBox();
+            this.boxOSFutureAccount = new System.Windows.Forms.ComboBox();
+            this.boxOSStockAccount = new System.Windows.Forms.ComboBox();
+            this.lblStockAccount = new System.Windows.Forms.Label();
+            this.lblFutureAccount = new System.Windows.Forms.Label();
+            this.lblOSFutureAccount = new System.Windows.Forms.Label();
+            this.lblOSStockAccount = new System.Windows.Forms.Label();
             this.tabPage2.SuspendLayout();
             this.tabControl1.SuspendLayout();
             this.SuspendLayout();
@@ -49,10 +57,10 @@ namespace SKCOMTester
             this.listInformation.FormattingEnabled = true;
             this.listInformation.HorizontalScrollbar = true;
             this.listInformation.ItemHeight = 12;
-            this.listInformation.Location = new System.Drawing.Point(280, 27);
+            this.listInformation.Location = new System.Drawing.Point(461, 25);
             this.listInformation.Name = "listInformation";
             this.listInformation.ScrollAlwaysVisible = true;
-            this.listInformation.Size = new System.Drawing.Size(695, 112);
+            this.listInformation.Size = new System.Drawing.Size(510, 100);
             this.listInformation.TabIndex = 45;
             // 
             // OrderInitialize
@@ -67,7 +75,7 @@ namespace SKCOMTester
             // 
             // btnReadCert
             // 
-            this.btnReadCert.Location = new System.Drawing.Point(161, 27);
+            this.btnReadCert.Location = new System.Drawing.Point(42, 95);
             this.btnReadCert.Name = "btnReadCert";
             this.btnReadCert.Size = new System.Drawing.Size(113, 28);
             this.btnReadCert.TabIndex = 47;
@@ -92,7 +100,7 @@ namespace SKCOMTester
             this.tabPage2.Location = new System.Drawing.Point(4, 22);
             this.tabPage2.Name = "tabPage2";
             this.tabPage2.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage2.Size = new System.Drawing.Size(925, 177);
+            this.tabPage2.Size = new System.Drawing.Size(925, 175);
             this.tabPage2.TabIndex = 1;
             this.tabPage2.Text = "期貨";
             this.tabPage2.UseVisualStyleBackColor = true;
@@ -100,6 +108,7 @@ namespace SKCOMTester
             // futureOrderControl1
             // 
             this.futureOrderControl1.Location = new System.Drawing.Point(6, 13);
+            this.futureOrderControl1.Margin = new System.Windows.Forms.Padding(4);
             this.futureOrderControl1.Name = "futureOrderControl1";
             this.futureOrderControl1.Size = new System.Drawing.Size(832, 158);
             this.futureOrderControl1.TabIndex = 0;
@@ -121,16 +130,98 @@ namespace SKCOMTester
             // tabControl1
             // 
             this.tabControl1.Controls.Add(this.tabPage2);
-            this.tabControl1.Location = new System.Drawing.Point(42, 145);
+            this.tabControl1.Location = new System.Drawing.Point(42, 147);
             this.tabControl1.Name = "tabControl1";
             this.tabControl1.SelectedIndex = 0;
-            this.tabControl1.Size = new System.Drawing.Size(933, 203);
+            this.tabControl1.Size = new System.Drawing.Size(933, 201);
             this.tabControl1.TabIndex = 44;
+            // 
+            // boxStockAccount
+            // 
+            this.boxStockAccount.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.boxStockAccount.Font = new System.Drawing.Font("Courier New", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(136)));
+            this.boxStockAccount.FormattingEnabled = true;
+            this.boxStockAccount.Location = new System.Drawing.Point(252, 27);
+            this.boxStockAccount.Name = "boxStockAccount";
+            this.boxStockAccount.Size = new System.Drawing.Size(190, 20);
+            this.boxStockAccount.TabIndex = 49;
+            // 
+            // boxFutureAccount
+            // 
+            this.boxFutureAccount.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.boxFutureAccount.FormattingEnabled = true;
+            this.boxFutureAccount.Location = new System.Drawing.Point(252, 56);
+            this.boxFutureAccount.Name = "boxFutureAccount";
+            this.boxFutureAccount.Size = new System.Drawing.Size(190, 20);
+            this.boxFutureAccount.TabIndex = 50;
+            this.boxFutureAccount.SelectedIndexChanged += new System.EventHandler(this.boxFutureAccount_SelectedIndexChanged);
+            // 
+            // boxOSFutureAccount
+            // 
+            this.boxOSFutureAccount.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.boxOSFutureAccount.FormattingEnabled = true;
+            this.boxOSFutureAccount.Location = new System.Drawing.Point(252, 84);
+            this.boxOSFutureAccount.Name = "boxOSFutureAccount";
+            this.boxOSFutureAccount.Size = new System.Drawing.Size(190, 20);
+            this.boxOSFutureAccount.TabIndex = 51;
+            // 
+            // boxOSStockAccount
+            // 
+            this.boxOSStockAccount.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.boxOSStockAccount.FormattingEnabled = true;
+            this.boxOSStockAccount.Location = new System.Drawing.Point(252, 110);
+            this.boxOSStockAccount.Name = "boxOSStockAccount";
+            this.boxOSStockAccount.Size = new System.Drawing.Size(190, 20);
+            this.boxOSStockAccount.TabIndex = 52;
+            // 
+            // lblStockAccount
+            // 
+            this.lblStockAccount.AutoSize = true;
+            this.lblStockAccount.Location = new System.Drawing.Point(179, 30);
+            this.lblStockAccount.Name = "lblStockAccount";
+            this.lblStockAccount.Size = new System.Drawing.Size(53, 12);
+            this.lblStockAccount.TabIndex = 53;
+            this.lblStockAccount.Text = "證券帳號";
+            // 
+            // lblFutureAccount
+            // 
+            this.lblFutureAccount.AutoSize = true;
+            this.lblFutureAccount.Location = new System.Drawing.Point(179, 59);
+            this.lblFutureAccount.Name = "lblFutureAccount";
+            this.lblFutureAccount.Size = new System.Drawing.Size(53, 12);
+            this.lblFutureAccount.TabIndex = 54;
+            this.lblFutureAccount.Text = "期貨帳號";
+            // 
+            // lblOSFutureAccount
+            // 
+            this.lblOSFutureAccount.AutoSize = true;
+            this.lblOSFutureAccount.Location = new System.Drawing.Point(179, 87);
+            this.lblOSFutureAccount.Name = "lblOSFutureAccount";
+            this.lblOSFutureAccount.Size = new System.Drawing.Size(53, 12);
+            this.lblOSFutureAccount.TabIndex = 55;
+            this.lblOSFutureAccount.Text = "海期帳號";
+            // 
+            // lblOSStockAccount
+            // 
+            this.lblOSStockAccount.AutoSize = true;
+            this.lblOSStockAccount.Location = new System.Drawing.Point(167, 113);
+            this.lblOSStockAccount.Name = "lblOSStockAccount";
+            this.lblOSStockAccount.Size = new System.Drawing.Size(65, 12);
+            this.lblOSStockAccount.TabIndex = 56;
+            this.lblOSStockAccount.Text = "複委託帳號";
             // 
             // SKOrder
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.Controls.Add(this.lblOSStockAccount);
+            this.Controls.Add(this.lblOSFutureAccount);
+            this.Controls.Add(this.lblFutureAccount);
+            this.Controls.Add(this.lblStockAccount);
+            this.Controls.Add(this.boxOSStockAccount);
+            this.Controls.Add(this.boxOSFutureAccount);
+            this.Controls.Add(this.boxFutureAccount);
+            this.Controls.Add(this.boxStockAccount);
             this.Controls.Add(this.btnGetAccount);
             this.Controls.Add(this.btnReadCert);
             this.Controls.Add(this.OrderInitialize);
@@ -142,6 +233,7 @@ namespace SKCOMTester
             this.tabPage2.ResumeLayout(false);
             this.tabControl1.ResumeLayout(false);
             this.ResumeLayout(false);
+            this.PerformLayout();
 
         }
 
@@ -153,6 +245,14 @@ namespace SKCOMTester
         private System.Windows.Forms.TabPage tabPage2;
         private SKOrderTester.FutureOrderControl futureOrderControl1;
         private System.Windows.Forms.TabControl tabControl1;
+        private System.Windows.Forms.ComboBox boxStockAccount;
+        private System.Windows.Forms.ComboBox boxFutureAccount;
+        private System.Windows.Forms.ComboBox boxOSFutureAccount;
+        private System.Windows.Forms.ComboBox boxOSStockAccount;
+        private System.Windows.Forms.Label lblStockAccount;
+        private System.Windows.Forms.Label lblFutureAccount;
+        private System.Windows.Forms.Label lblOSFutureAccount;
+        private System.Windows.Forms.Label lblOSStockAccount;
         //private SKOrderTester.WithDrawInOutControl withDrawInOutControl1;
     }
 }

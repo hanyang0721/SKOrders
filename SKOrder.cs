@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Windows.Forms;
 using SKCOMLib;
+using SKOrderTester;
 
 namespace SKCOMTester
 {
@@ -21,6 +22,7 @@ namespace SKCOMTester
 
         public delegate void MyMessageHandler(string strType, int nCode, string strMessage);
         public event MyMessageHandler GetMessage;
+        private readonly string connectionstr = System.Configuration.ConfigurationManager.AppSettings.Get("Connectionstring");
 
         SKCOMLib.SKOrderLib m_pSKOrder = null;
         public SKOrderLib OrderObj
@@ -36,6 +38,7 @@ namespace SKCOMTester
             set { m_strLoginID = value; }
         }
 
+        Utilities util = new Utilities();
 
         #endregion
 
@@ -62,11 +65,35 @@ namespace SKCOMTester
 
             strValues = bstrAccountData.Split(',');
             strAccount = bstrLogInID + " " + strValues[1] + strValues[3];
+
+            if (strValues[0] == "TS")
+            {
+                boxStockAccount.Items.Add(strAccount);
+                //if (m_bOrderM)
+                //    stockOrderControl1.ContinuousTrading = m_bOrderM;
+                //boxExecutionAccount.Items.Add("證券 " + strAccount);
+            }
+            else if (strValues[0] == "TF")
+            {
+                boxFutureAccount.Items.Add(strAccount);
+                //withDrawInOutControl1.UserAccountTF = strValues[1] + strValues[3];
+                //boxExecutionAccount.Items.Add("期貨 " + strAccount);
+            }
+            else if (strValues[0] == "OF")
+            {
+                boxOSFutureAccount.Items.Add(strAccount);
+                //withDrawInOutControl1.UserAccountOF = strValues[1] + strValues[3];
+            }
+            else if (strValues[0] == "OS")
+            {
+                //boxOSStockAccount.Items.Add(strAccount);
+            }
         }
 
         void m_pSKOrder_OnAsyncOrder(int nThreaID, int nCode, string bstrMessage)
         {
             WriteMessage("[OnAsyncOrder]Thread ID:" + nThreaID.ToString() + " Code:" + nCode.ToString() + " Message:" + bstrMessage);
+            util.UpdateTicket(connectionstr, nThreaID.ToString(), nCode.ToString(), bstrMessage);
         }
 
         void m_pSKOrder_OnRealBalanceReport(string bstrData)
@@ -102,7 +129,6 @@ namespace SKCOMTester
         void m_pSKOrder_OnFutureRights(string bstrData)
         {
             WriteMessage("[OnFutureRights]" + bstrData);
-
         }
 
         void m_pSKOrder_OnRequestProfitReport(string bstrData)
@@ -131,31 +157,6 @@ namespace SKCOMTester
         //----------------------------------------------------------------------
         // Component Event
         //----------------------------------------------------------------------
-        private void btnInitialize_Click(object sender, EventArgs e)
-        {
-            if (m_bfirst == true)
-            {
-                m_pSKOrder.OnAccount += new _ISKOrderLibEvents_OnAccountEventHandler(m_OrderObj_OnAccount);
-                m_pSKOrder.OnAsyncOrder += new _ISKOrderLibEvents_OnAsyncOrderEventHandler(m_pSKOrder_OnAsyncOrder);
-                m_pSKOrder.OnRealBalanceReport += new _ISKOrderLibEvents_OnRealBalanceReportEventHandler(m_pSKOrder_OnRealBalanceReport);
-                m_pSKOrder.OnOpenInterest += new _ISKOrderLibEvents_OnOpenInterestEventHandler(m_pSKOrder_OnOpenInterest);
-                m_pSKOrder.OnOverseaFutureOpenInterest += new _ISKOrderLibEvents_OnOverseaFutureOpenInterestEventHandler(m_pSKOrder_OnOverseaFutureOpenInterest);
-                m_pSKOrder.OnStopLossReport += new _ISKOrderLibEvents_OnStopLossReportEventHandler(m_pSKOrder_OnStopLossReport);
-                m_pSKOrder.OnOverseaFuture += new _ISKOrderLibEvents_OnOverseaFutureEventHandler(m_pSKOrder_OnOverseaFuture);
-                m_pSKOrder.OnOverseaOption += new _ISKOrderLibEvents_OnOverseaOptionEventHandler(m_pSKOrder_OnOverseaOption);
-                m_pSKOrder.OnFutureRights += new _ISKOrderLibEvents_OnFutureRightsEventHandler(m_pSKOrder_OnFutureRights);
-                m_pSKOrder.OnRequestProfitReport += new _ISKOrderLibEvents_OnRequestProfitReportEventHandler(m_pSKOrder_OnRequestProfitReport);
-                m_pSKOrder.OnOverSeaFutureRight += new _ISKOrderLibEvents_OnOverSeaFutureRightEventHandler(m_pSKOrder_OnOverSeaFutureRight);
-                m_pSKOrder.OnMarginPurchaseAmountLimit += new _ISKOrderLibEvents_OnMarginPurchaseAmountLimitEventHandler(m_pSKOrder_OnMarginPurchaseAmountLimit);
-                m_pSKOrder.OnBalanceQuery += new _ISKOrderLibEvents_OnBalanceQueryEventHandler(m_pSKOrder_OnBalanceQueryReport);
-                
-                m_bfirst = false;
-            }
-
-            m_nCode = m_pSKOrder.SKOrderLib_Initialize();
-
-            SendReturnMessage("Order", m_nCode, "SKOrderLib_Initialize");
-        }
 
         private void btnReadCert_Click(object sender, EventArgs e)
         {
@@ -164,8 +165,34 @@ namespace SKCOMTester
             SendReturnMessage("Order", m_nCode, "ReadCertByID");
         }
 
+        private void boxFutureAccount_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            string strInfo = boxFutureAccount.Text;
+
+            string[] strValues;
+            strValues = strInfo.Split(' ');
+
+            futureOrderControl1.UserID = strValues[0];
+            futureOrderControl1.UserAccount = strValues[1];
+
+            //optionOrderControl1.UserID = strValues[0];
+            //optionOrderControl1.UserAccount = strValues[1];
+            //
+            //futureStopLossControl1.UserID = strValues[0];
+            //futureStopLossControl1.UserAccount = strValues[1];
+            //
+            //tftomit1.UserID = strValues[0];
+            //tftomit1.UserAccount = strValues[1];
+            //
+            //withDrawInOutControl1.UserID = strValues[0];
+            //withDrawInOut1.UserAccountTF = strValues[1];
+        }
         private void btnGetAccount_Click(object sender, EventArgs e)
         {
+            boxStockAccount.Items.Clear();
+            boxFutureAccount.Items.Clear();
+            boxOSFutureAccount.Items.Clear();
+            boxOSStockAccount.Items.Clear();
             m_nCode = m_pSKOrder.GetUserAccount();
 
             SendReturnMessage("Order", m_nCode, "GetUserAccount");
@@ -198,7 +225,7 @@ namespace SKCOMTester
         {
             string strMessage = "";
             m_nCode = m_pSKOrder.SendFutureOrder(strLogInID, bAsyncOrder, pStock, out strMessage);
-
+            util.RecordTicket(connectionstr, strMessage, pStock,"");
             WriteMessage("期貨委託：" + strMessage);
             SendReturnMessage("Order", m_nCode, "SendFutureOrder");
         }
@@ -611,10 +638,10 @@ namespace SKCOMTester
             //listInformation.HorizontalScrollbar = true;
 
             // Create a Graphics object to use when determining the size of the largest item in the ListBox.
-            Graphics g = listInformation.CreateGraphics();
+            //Graphics g = listInformation.CreateGraphics();
 
             // Determine the size for HorizontalExtent using the MeasureString method using the last item in the list.
-            int hzSize = (int)g.MeasureString(listInformation.Items[listInformation.Items.Count - 1].ToString(), listInformation.Font).Width;
+           // int hzSize = (int)g.MeasureString(listInformation.Items[listInformation.Items.Count - 1].ToString(), listInformation.Font).Width;
             // Set the HorizontalExtent property.
             //[20170607-d-]listInformation.HorizontalExtent = hzSize;
         }
@@ -658,14 +685,7 @@ namespace SKCOMTester
       　     SendReturnMessage("Order", m_nCode, "SKOrderLib_Initialize");
       　 }
 
-        private void MyOnFutureOrderSignal(string strLogInID, bool bAsyncOrder, FUTUREORDER pStock)
-        {
-            m_nCode = m_pSKOrder.SendFutureOrder(strLogInID, bAsyncOrder, pStock, out string strMessage);
 
-            WriteMessage("期貨委託2：" + strMessage);
-            SendReturnMessage("Order", m_nCode, "SendFutureOrder");
-        }
-        
 
     }
 }

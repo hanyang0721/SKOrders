@@ -1,13 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
 using System.Drawing;
-using System.Data;
-using System.Linq;
-using System.Text;
 using System.Windows.Forms;
 using SKCOMLib;
-
+using SKOrderTester;
 
 namespace SKCOMTester
 {
@@ -25,9 +20,11 @@ namespace SKCOMTester
 
         public delegate void OnAnnouncementHandler(string strUserID, string strMessage, out int nConfirmCode);
         public event OnAnnouncementHandler OnAnnouncement;
+        private readonly string connectionstr = System.Configuration.ConfigurationManager.AppSettings.Get("Connectionstring");
 
         SKCOMLib.SKReplyLib m_SKReplyLib = null;
         SKCOMLib.SKReplyLib m_SKReplyLib2 = null;
+        Utilities util = new Utilities();
 
         public SKReplyLib SKReplyLib
         {
@@ -69,8 +66,6 @@ namespace SKCOMTester
                 m_bOrderM = value;
 
             }
-
-
         }
 
         #endregion
@@ -180,6 +175,7 @@ namespace SKCOMTester
             if (strUserID == m_strLoginID)
             {
                 listNewMessage.Items.Add("{" + strUserID + "}OnNewData:" + strData);
+                util.RecordOrderReply(connectionstr, strData);
             }
             else if (strUserID == m_strLoginID2)
             {
