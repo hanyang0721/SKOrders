@@ -2,7 +2,7 @@
 
 群益自動下單機 </br>
 需搭配python backtrader <https://www.backtrader.com/> </br>
-適用於5分K或更長策略. 不適用於短tick的操作策略. 因process整個run完約需1sec(1000ms)
+適用於1分K或更長策略. 不適用於短tick的操作策略. 因process cycle約需1sec(1000ms)
 
 ### 缺一不可
 https://github.com/hanyang0721/SKQuotes  
@@ -21,8 +21,8 @@ https://github.com/hanyang0721/SKOrders
 * pip install line-bot-sdk
 
 ### 功能
-1. 透過AccurateTimer執行策略運算, 策略運算後隨即對透過群益API下單, 一個cycle約在1000ms內
-2. 內建預設8:50會執行第一次, timer interval為5分
+1. 透過AccurateTimer執行策略運算, 策略運算後隨即對透過群益API下單
+2. 內建預設8:46會執行第一次, timer interval為1分
 3. 提供line下單提醒
 4. 提供參數檔execonfig, 儲存使用者自訂username, password, 策略script路徑, 期貨帳號
 5. 提供多策略下單
@@ -30,11 +30,29 @@ https://github.com/hanyang0721/SKOrders
 ### 更新
 <i>2019-09-25</i>
 1. 改用AccurateTimer(multimedia timer)降低內建C# timer導致的時間差.
-2. 新增skip order功能, 當訊號發出時不做下單動作, 僅發line提醒</br>
+2. ~~新增skip order功能, 當訊號發出時不做下單動作, 僅發line提醒~~</br>
 
 <i>2019-10-22</i>
 1. 使用multithreading方式支援多策略下單 
 2. 設定ThreadPriority.Highest避免時間差.
+
+<i>2020-10-28</i>
+1. 新增clibration function, 作用於當行情與local machine時間不準時將timer提早跑.因行情接收會有起碼300-400ms delay. 
+2. 支援一分k
+3. 新增成交回報, 委託表tblOrder_Ticket, 成交表tblSKOrderReply
+4. 取消下單機佔據佔據行情連線數, SKCenterLib_LogInSetQuote(ID, password ,N) 代入ID及密碼, 並且設定N代表停用報價功能
+
+### 參數說明
+
+| Key       | Value           | 用途  |
+| ------------- |:-------------:|------|
+| TotalMorningStrategies      | int | 早盤策略總數 |
+| TotalNightStrategies      | int      | 夜盤策略總數 |
+| morning_strat | 參數路徑      |   morning_strat+int int從0開始  |
+| calib_timer_enabled | int      |   是否啟用校正  |
+| calib_durationms | int      |   預設一小時校正一次timer時間  |
+| durationms | int      |   主要timer, 預設每分鐘run一次  |
+
 
 ### 使用方式
 1. 設定Appconfig裡的username, password, futureaccount(例F020xxxxxx), python執行檔路徑, 策略路徑.  
